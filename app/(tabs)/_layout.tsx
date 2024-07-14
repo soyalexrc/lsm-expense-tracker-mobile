@@ -5,6 +5,7 @@ import Feather from '@expo/vector-icons/Feather';
 
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import HomeHeader from "@/components/layout/HomeHeader";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -13,15 +14,16 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
           tabBarStyle: {
-            borderTopWidth: 0
+            borderTopWidth: 0,
+
           }
       }}>
       <Tabs.Screen
-        name="index"
+        name="(home)"
         options={{
           title: '',
+          headerShown: false,
           tabBarIcon: ({ color, focused }) => (
               <Feather name="inbox" size={28} color={color} />
           ),
