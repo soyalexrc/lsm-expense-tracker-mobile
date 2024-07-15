@@ -14,7 +14,7 @@ export default function HomeLayout() {
 
                 }}
             />
-            <Stack.Screen name="transactions/[id]" options={{ presentation: 'modal' }} />
+            <Stack.Screen name="transactions/[id]" options={{ presentation: 'fullScreenModal', headerShown: false }} />
         </Stack>
     )
 }

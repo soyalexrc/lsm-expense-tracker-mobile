@@ -7,6 +7,7 @@ import HeaderDropDownMenu from "@/components/layout/HeaderDropDown";
 import {Feather} from "@expo/vector-icons";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {useHeaderHeight} from "@react-navigation/elements";
+import {useRouter} from "expo-router";
 
 const groups = [
     {
@@ -58,18 +59,21 @@ const groups = [
 
 
 export default function HomeScreen() {
+    const router = useRouter();
     const schemeColor = useColorScheme()
     const insets = useSafeAreaInsets()
     const [selectedItem, setSelectedItem] = useState<string>('0')
+
     function handleDropDownTriggerPress(value: 'on' | 'mixed' | 'off', keyItem: string) {
         console.log({value, keyItem});
         setSelectedItem(keyItem);
     }
+
     return (
         <View style={styles.container}>
             <BlurView intensity={100} tint='prominent' style={[styles.header, { paddingTop: insets.top }]}>
                 <HeaderDropDownMenu />
-                <TouchableOpacity style={[{backgroundColor: schemeColor === 'light' ? 'black' : 'white'}, styles.createButton]}>
+                <TouchableOpacity onPress={() => router.push('/(tabs)/(home)/transactions/null')} style={[{backgroundColor: schemeColor === 'light' ? 'black' : 'white'}, styles.createButton]}>
                     <Feather name="plus" size={20} color={schemeColor === 'light' ? 'white' : 'black'} />
                 </TouchableOpacity>
             </BlurView>
