@@ -1,4 +1,6 @@
-import {Image, StyleSheet, Text, View} from "react-native";
+import {Image, Pressable, StyleSheet, Text, View} from "react-native";
+import * as ContextMenu from 'zeego/context-menu'
+import {useRouter} from "expo-router";
 
 const data = [
     {
@@ -98,25 +100,56 @@ const data = [
 
 
 export default function HomeResumeItems() {
+    const router = useRouter();
+
+    function handlePress(id: string) {
+        console.log('here', id)
+        router.push('/(tabs)/(home)/transactions/sample')
+    }
+
     return (
         <>
             {data.map(group => (
                 <View key={group.id}>
                     <View style={styles.container}>
-                        <View style={{ width: 30 }} />
-                        <View style={[styles.imageWithLabel, {marginTop: 12}]}>
-                            <Text style={{ color: 'gray', fontSize: 14 }}>{group.date}</Text>
-                            <Text style={{ color: 'gray', fontSize: 14 }}>S/ {group.total}</Text>
+                        <View style={{width: 20}}/>
+                        <View style={[styles.imageWithLabel, {margin: 12}]}>
+                            <Text style={{color: 'gray', fontSize: 14}}>{group.date}</Text>
+                            <Text style={{color: 'gray', fontSize: 14}}>S/ {group.total}</Text>
                         </View>
                     </View>
                     {group.items.map((item) => (
-                        <View style={styles.container} key={item.id}>
-                            <Image source={require(`../assets/icons/popcorn.png`)} style={{ width: 30, height: 30 }} />
-                            <View style={styles.imageWithLabel}>
-                                <Text style={styles.label}>{item.category.label}</Text>
-                                <Text>S/ {item.value}</Text>
-                            </View>
-                        </View>
+                        <ContextMenu.Root key={item.id}>
+                            <ContextMenu.Trigger>
+                                <Pressable style={[styles.container, { backgroundColor: 'white' }]} onPress={() => handlePress(item.id)}>
+                                    <Image source={require(`../assets/icons/popcorn.png`)}
+                                           style={{width: 30, height: 30}}/>
+                                    <View style={styles.imageWithLabel}>
+                                        <Text style={styles.label}>{item.category.label}</Text>
+                                        <Text>S/ {item.value}</Text>
+                                    </View>
+                                </Pressable>
+                            </ContextMenu.Trigger>
+                            <ContextMenu.Content loop={false} alignOffset={0} collisionPadding={0}
+                                                 avoidCollisions={true}>
+                                <ContextMenu.Item key='duplicate'>
+                                    <ContextMenu.ItemTitle>Duplicate</ContextMenu.ItemTitle>
+                                    <ContextMenu.ItemIcon
+                                        ios={{
+                                            name: 'doc.on.doc'
+                                        }}
+                                    />
+                                </ContextMenu.Item>
+                                <ContextMenu.Item key='delete' destructive>
+                                    <ContextMenu.ItemTitle>Delete</ContextMenu.ItemTitle>
+                                    <ContextMenu.ItemIcon
+                                        ios={{
+                                            name: 'trash'
+                                        }}
+                                    />
+                                </ContextMenu.Item>
+                            </ContextMenu.Content>
+                        </ContextMenu.Root>
                     ))}
                 </View>
 
@@ -133,7 +166,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-
     },
     imageWithLabel: {
         flex: 1,

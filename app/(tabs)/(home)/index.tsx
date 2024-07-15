@@ -60,7 +60,6 @@ const groups = [
 export default function HomeScreen() {
     const schemeColor = useColorScheme()
     const insets = useSafeAreaInsets()
-    const headerHeight = useHeaderHeight()
     const [selectedItem, setSelectedItem] = useState<string>('0')
     function handleDropDownTriggerPress(value: 'on' | 'mixed' | 'off', keyItem: string) {
         console.log({value, keyItem});
@@ -74,7 +73,7 @@ export default function HomeScreen() {
                     <Feather name="plus" size={20} color={schemeColor === 'light' ? 'white' : 'black'} />
                 </TouchableOpacity>
             </BlurView>
-            <ScrollView style={[styles.container, { backgroundColor: schemeColor === 'light' ? 'white' : 'black', paddingTop: insets.top + 50   }]}>
+            <ScrollView showsVerticalScrollIndicator={false} style={[styles.container, { backgroundColor: schemeColor === 'light' ? 'white' : 'black', paddingTop: insets.top + 50   }]}>
                 <ResumeDropDown groups={groups} selectedItem={selectedItem} onSelect={handleDropDownTriggerPress} />
 
                 {/*    Lista de items por semana, mes y cada dia como separator con el total*/}

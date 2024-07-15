@@ -24,12 +24,26 @@ export default function ResumeDropDown({onSelect, groups, selectedItem}: Props) 
     function handleOnOpenChange(isOpen: boolean) {
         console.log(isOpen)
     }
+
+    function getTitleByKeySelected(keySelected: string) {
+        let result = '';
+        for (let i = 0; i < groups.length; i++) {
+            for (let j = 0; j < groups[i].items.length; j++) {
+                let key = groups[i].items[j].key;
+                if (key === keySelected) {
+                    result = groups[i].items.find(element => element.key === key)?.title ?? '';
+                }
+            }
+        }
+        return result;
+    }
+
     return (
         <View style={styles.container}>
             <DropdownMenu.Root onOpenChange={handleOnOpenChange}>
                 <DropdownMenu.Trigger>
                     <View style={{ alignItems: 'center' }}>
-                        <Text style={[styles.fs18, isMenuOpen && styles.opacityMedium]}>Spent this week</Text>
+                        <Text style={[styles.fs18, isMenuOpen && styles.opacityMedium]}>{getTitleByKeySelected(selectedItem)}</Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Text style={[styles.fs32, isMenuOpen && styles.opacityMedium]}>S/</Text>
                             <Text style={[styles.fw64, styles.fwBold, isMenuOpen && styles.opacityMedium]}>5,748</Text>

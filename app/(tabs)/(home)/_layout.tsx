@@ -1,5 +1,4 @@
 import {Stack} from "expo-router";
-import HomeHeader from "@/components/layout/HomeHeader";
 import React from "react";
 
 export default function HomeLayout() {
@@ -15,7 +14,7 @@ export default function HomeLayout() {
 
                 }}
             />
-            <Stack.Screen name="transactions/[id]" />
+            <Stack.Screen name="transactions/[id]" options={{ presentation: 'modal' }} />
         </Stack>
     )
 }
