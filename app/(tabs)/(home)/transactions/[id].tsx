@@ -128,6 +128,7 @@ export default function ItemDetailOrCreateScreen() {
                                 borderRadius: 100,
                                 justifyContent: 'center',
                                 alignItems: 'center',
+                                width: 70,
                                 height: 30
                             }} onPress={() => router.back()}>
                                 <Text style={{color: 'white', fontWeight: 'bold', fontSize: 16}}>Save</Text>
