@@ -1,6 +1,7 @@
 import {Image, Pressable, StyleSheet, Text, View} from "react-native";
 import * as ContextMenu from 'zeego/context-menu'
 import {useRouter} from "expo-router";
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 
 const data = [
     {
@@ -15,6 +16,7 @@ const data = [
                     label: "Groceries",
                     icon: "cart"
                 },
+                isScheduled: true,
                 value: "78.43"
             },
             {
@@ -24,6 +26,7 @@ const data = [
                     label: "Dining",
                     icon: "cutlery"
                 },
+                isScheduled: false,
                 value: "23.15"
             },
             {
@@ -33,6 +36,7 @@ const data = [
                     label: "Transportation",
                     icon: "bus"
                 },
+                isScheduled: false,
                 value: "24.20"
             }
         ]
@@ -49,6 +53,7 @@ const data = [
                     label: "Utilities",
                     icon: "plug"
                 },
+                isScheduled: false,
                 value: "38.99"
             }
         ]
@@ -65,6 +70,7 @@ const data = [
                     label: "Dining",
                     icon: "cutlery"
                 },
+                isScheduled: false,
                 value: "54.00"
             },
             {
@@ -74,6 +80,7 @@ const data = [
                     label: "Shopping",
                     icon: "shopping-bag"
                 },
+                isScheduled: false,
                 value: "28.50"
             }
         ]
@@ -91,6 +98,7 @@ const data = [
                     label: "Personal Care",
                     icon: "spa"
                 },
+                isScheduled: false,
                 value: "15.00"
             }
         ]
@@ -125,13 +133,30 @@ export default function HomeResumeItems() {
                                     <Image source={require(`../assets/icons/popcorn.png`)}
                                            style={{width: 30, height: 30}}/>
                                     <View style={styles.imageWithLabel}>
-                                        <Text style={styles.label}>{item.category.label}</Text>
+                                       <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+                                           {
+                                               item.isScheduled &&
+                                               <FontAwesome6 name="arrow-rotate-left" size={16} color="gray" />
+                                           }
+                                           <Text style={styles.label}>{item.category.label}</Text>
+                                       </View>
                                         <Text>S/ {item.value}</Text>
                                     </View>
                                 </Pressable>
                             </ContextMenu.Trigger>
                             <ContextMenu.Content loop={false} alignOffset={0} collisionPadding={0}
                                                  avoidCollisions={true}>
+                                {
+                                    item.isScheduled &&
+                                    <ContextMenu.Item key='recurring'>
+                                        <ContextMenu.ItemTitle>Stop Recurring</ContextMenu.ItemTitle>
+                                        <ContextMenu.ItemIcon
+                                            ios={{
+                                                name: 'xmark'
+                                            }}
+                                        />
+                                    </ContextMenu.Item>
+                                }
                                 <ContextMenu.Item key='duplicate'>
                                     <ContextMenu.ItemTitle>Duplicate</ContextMenu.ItemTitle>
                                     <ContextMenu.ItemIcon
