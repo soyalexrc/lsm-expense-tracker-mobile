@@ -14,6 +14,7 @@ import CustomBackdrop from "@/components/CustomBackdrop";
 import DatePicker from 'react-native-date-picker'
 import {locale} from "dayjs";
 import {format} from "date-fns";
+import RecurringSelectorDropdown from "@/components/RecurringSelectorDropdown";
 
 
 const data = [
@@ -41,7 +42,7 @@ export default function ItemDetailOrCreateScreen() {
     const accountsModalRef = useRef<BottomSheetModal>(null);
     const snapPointsCategories = useMemo(() => ['50%', '75%'], []);
     const snapPointsAccounts = useMemo(() => ['25%'], []);
-
+    const isEditing = false;
     // callbacks
 
     const handlePressCategoriesModal = useCallback(() => {
@@ -105,12 +106,13 @@ export default function ItemDetailOrCreateScreen() {
                             <Entypo name="select-arrows" size={18} color="black"/>
                         </TouchableOpacity>
                         <View style={styles.headerRightSide}>
-                            <TouchableOpacity>
-                                <MaterialCommunityIcons name="calendar-sync-outline" size={24} color="gray"/>
-                            </TouchableOpacity>
-                            <TouchableOpacity>
-                                <Entypo name="dots-three-horizontal" size={24} color="gray"/>
-                            </TouchableOpacity>
+                            <RecurringSelectorDropdown />
+                            {
+                                isEditing &&
+                                <TouchableOpacity>
+                                    <Entypo name="dots-three-horizontal" size={24} color="gray"/>
+                                </TouchableOpacity>
+                            }
                         </View>
                     </View>
                     <View style={styles.content}>
