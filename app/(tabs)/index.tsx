@@ -73,7 +73,7 @@ export default function HomeScreen() {
         <View style={styles.container}>
             <BlurView intensity={100} tint='prominent' style={[styles.header, { paddingTop: insets.top }]}>
                 <HeaderDropDownMenu />
-                <TouchableOpacity onPress={() => router.push('/(tabs)/(home)/transactions/null')} style={[{backgroundColor: schemeColor === 'light' ? 'black' : 'white'}, styles.createButton]}>
+                <TouchableOpacity onPress={() => router.push('/transactionCreateUpdate')} style={[{backgroundColor: schemeColor === 'light' ? 'black' : 'white'}, styles.createButton]}>
                     <Feather name="plus" size={20} color={schemeColor === 'light' ? 'white' : 'black'} />
                 </TouchableOpacity>
             </BlurView>

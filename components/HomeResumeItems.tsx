@@ -112,7 +112,7 @@ export default function HomeResumeItems() {
 
     function handlePress(id: string) {
         console.log('here', id)
-        router.push('/(tabs)/(home)/transactions/sample')
+        router.push('/transactionCreateUpdate')
     }
 
     return (

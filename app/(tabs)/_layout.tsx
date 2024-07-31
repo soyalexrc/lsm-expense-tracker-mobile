@@ -39,7 +39,7 @@ export default function TabLayout() {
                 </View>
             }}>
             <Tabs.Screen
-                name="(home)"
+                name="index"
                 options={{
                     title: '',
                     headerShown: false,
@@ -49,8 +49,9 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
-                name="reports"
+                name="(reports)"
                 options={{
+                    headerShown: false,
                     title: '',
                     tabBarIcon: ({color, focused}) => (
                         <Feather name="bar-chart" size={28} color={color}/>

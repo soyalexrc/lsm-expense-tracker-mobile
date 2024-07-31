@@ -1,5 +1,5 @@
 import * as DropdownMenu from "zeego/dropdown-menu";
-import {Text, View} from "react-native";
+import {Text, View, StyleSheet} from "react-native";
 import { Entypo } from '@expo/vector-icons';
 
 export default function HeaderDropDownMenu() {
