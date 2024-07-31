@@ -1,12 +1,12 @@
 import {StyleSheet, View, Text, TouchableOpacity, ScrollView, useColorScheme} from 'react-native';
 import {BlurView} from "expo-blur";
-import HeaderDropDownMenu from "@/components/layout/HeaderDropDown";
+import HeaderDropDownMenu from "@/lib/components/layout/HeaderDropDown";
 import React, {useState} from "react";
 import {useRouter} from "expo-router";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import HeaderTransactionTypeDropdown from "@/components/HeaderTransactionTypeDropdown";
-import ReportsResumeItems from "@/components/ReportsResumeItems";
+import HeaderTransactionTypeDropdown from "@/lib/components/HeaderTransactionTypeDropdown";
+import ReportsResumeItems from "@/lib/components/ReportsResumeItems";
 
 const data = [
   {

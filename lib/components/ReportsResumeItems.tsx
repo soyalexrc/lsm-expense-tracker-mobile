@@ -17,7 +17,7 @@ export default function ReportsResumeItems({ data, onPress }: { data: any[], onP
                     <ContextMenu.Trigger>
                         <Pressable style={[styles.container, {backgroundColor: 'white'}]}
                                    onPress={() => onPress(item.id)}>
-                            <Image source={require(`../assets/icons/popcorn.png`)}
+                            <Image source={require(`../../assets/icons/popcorn.png`)}
                                    style={{width: 30, height: 30}}/>
                             <View style={styles.imageWithLabel}>
                                 <View style={{flexDirection: 'row', gap: 10, alignItems: 'center'}}>

@@ -9,13 +9,10 @@ import {
     BottomSheetFlatList,
     BottomSheetModal,
     BottomSheetModalProvider, BottomSheetScrollView, BottomSheetTextInput,
-    BottomSheetView
 } from "@gorhom/bottom-sheet";
-import CustomBackdrop from "@/components/CustomBackdrop";
 import DatePicker from 'react-native-date-picker'
-import {locale} from "dayjs";
 import {format} from "date-fns";
-import RecurringSelectorDropdown from "@/components/RecurringSelectorDropdown";
+import RecurringSelectorDropdown from "@/lib/components/RecurringSelectorDropdown";
 
 const categoriesData = [
     {

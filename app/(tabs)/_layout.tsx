@@ -3,10 +3,10 @@ import React from 'react';
 
 import Feather from '@expo/vector-icons/Feather';
 
-import {Colors} from '@/constants/Colors';
-import {useColorScheme} from '@/hooks/useColorScheme';
 import {View} from "react-native";
 import {BlurView} from "expo-blur";
+import {useColorScheme} from "@/lib/hooks/useColorScheme";
+import {Colors} from "@/lib/constants/Colors";
 
 export default function TabLayout() {
     const colorScheme = useColorScheme();

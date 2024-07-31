@@ -1,12 +1,11 @@
-import ResumeDropDown from "@/components/ResumeDropDown";
+import ResumeDropDown from "@/lib/components/ResumeDropDown";
 import React, {useState} from "react";
 import {ScrollView, StyleSheet, TouchableOpacity, useColorScheme, View} from "react-native";
-import HomeResumeItems from "@/components/HomeResumeItems";
+import HomeResumeItems from "@/lib/components/HomeResumeItems";
 import {BlurView} from "expo-blur";
-import HeaderDropDownMenu from "@/components/layout/HeaderDropDown";
+import HeaderDropDownMenu from "@/lib/components/layout/HeaderDropDown";
 import {Feather} from "@expo/vector-icons";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
-import {useHeaderHeight} from "@react-navigation/elements";
 import {useRouter} from "expo-router";
 
 const groups = [

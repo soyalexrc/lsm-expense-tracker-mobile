@@ -1,6 +1,6 @@
 import {ScrollView, Text, View} from "react-native";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
-import ReportsResumeItems from "@/components/ReportsResumeItems";
+import ReportsResumeItems from "@/lib/components/ReportsResumeItems";
 import {useRouter} from "expo-router";
 
 const data = [

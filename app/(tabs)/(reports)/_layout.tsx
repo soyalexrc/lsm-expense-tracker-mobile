@@ -3,8 +3,6 @@ import React from "react";
 import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {BlurView} from "expo-blur";
-import HeaderDropDownMenu from "@/components/layout/HeaderDropDown";
-import {Feather} from "@expo/vector-icons";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 export default function ReportsLayout() {
