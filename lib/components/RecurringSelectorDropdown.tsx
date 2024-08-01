@@ -2,6 +2,8 @@ import * as DropdownMenu from "zeego/dropdown-menu";
 import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {useState} from "react";
 import {MaterialCommunityIcons} from "@expo/vector-icons";
+import {useAppDispatch, useAppSelector} from "@/lib/store/hooks";
+import {onRecurrentSettingChange, selectCurrentTransaction} from "@/lib/store/features/transactions/transactionsSlice";
 
 type Props = {
     groups: Item[];
@@ -40,28 +42,28 @@ const items = [
 ]
 
 export default function RecurringSelectorDropdown() {
-    const [selectedItem, setSelectedItem] = useState<string>('none')
+    const currentTransaction = useAppSelector(selectCurrentTransaction);
+    const dispatch = useAppDispatch();
     function handleOnOpenChange(isOpen: boolean) {
         console.log(isOpen)
     }
 
     function onSelect(value: 'on' | 'mixed' | 'off', keyItem: string) {
-        console.log({value, keyItem});
-        setSelectedItem(keyItem);
+        dispatch(onRecurrentSettingChange(keyItem));
     }
 
     return (
         <DropdownMenu.Root onOpenChange={handleOnOpenChange}>
             <DropdownMenu.Trigger>
                 <TouchableOpacity>
-                    <MaterialCommunityIcons name="calendar-sync-outline" size={24} color={selectedItem === 'none' ? 'gray' : 'black'}/>
+                    <MaterialCommunityIcons name="calendar-sync-outline" size={24} color={currentTransaction.recurrentDate === 'none' ? 'gray' : 'black'}/>
                 </TouchableOpacity>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content loop={false} side='bottom' sideOffset={0} align='center' alignOffset={0} collisionPadding={0} avoidCollisions={true}>
                 {
                     items.map(item => (
                         <DropdownMenu.CheckboxItem key={item.key}
-                                                   value={selectedItem === item.key ? 'on' : 'off'}
+                                                   value={currentTransaction.recurrentDate === item.key ? 'on' : 'off'}
                                                    onValueChange={(value) => onSelect(value, item.key)}>
                             <DropdownMenu.ItemTitle>{item.title}</DropdownMenu.ItemTitle>
                             <DropdownMenu.ItemIndicator/>

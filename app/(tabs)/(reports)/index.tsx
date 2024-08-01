@@ -1,6 +1,6 @@
 import {StyleSheet, View, Text, TouchableOpacity, ScrollView, useColorScheme} from 'react-native';
 import {BlurView} from "expo-blur";
-import HeaderDropDownMenu from "@/lib/components/layout/HeaderDropDown";
+import HeaderDropDownMenu from "@/lib/components/layout/AccountSelectDropdown";
 import React, {useState} from "react";
 import {useRouter} from "expo-router";
 import {useSafeAreaInsets} from "react-native-safe-area-context";

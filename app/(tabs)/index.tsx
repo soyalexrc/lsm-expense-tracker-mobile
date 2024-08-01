@@ -3,7 +3,7 @@ import React, {useState} from "react";
 import {ScrollView, StyleSheet, TouchableOpacity, useColorScheme, View} from "react-native";
 import HomeResumeItems from "@/lib/components/HomeResumeItems";
 import {BlurView} from "expo-blur";
-import HeaderDropDownMenu from "@/lib/components/layout/HeaderDropDown";
+import HeaderDropDownMenu from "@/lib/components/layout/AccountSelectDropdown";
 import {Feather} from "@expo/vector-icons";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {useRouter} from "expo-router";
