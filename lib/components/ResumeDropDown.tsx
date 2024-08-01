@@ -12,18 +12,20 @@ import { getTransactionsGroupedAndFiltered} from "@/lib/db";
 import {useSQLiteContext} from "expo-sqlite";
 import {formatByThousands} from "@/lib/helpers/string";
 import {groups} from "@/lib/utils/data/transaction";
+import {selectSelectedAccountGlobal} from "@/lib/store/features/accounts/accountsSlice";
 
 export default function ResumeDropDown() {
     const db = useSQLiteContext();
     const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
     const dispatch = useAppDispatch();
     const filterType = useAppSelector(selectHomeViewTypeFilter)
+    const selectedAccount = useAppSelector(selectSelectedAccountGlobal)
     const transactionsInView = useAppSelector(selectTransactionsGroupedByDate);
 
     async function handleSelectOption(type: 'Spent' | 'Revenue' | 'Balance', date: 'week' | 'month' | 'none') {
         const {start, end} =  date === 'week' ? getCurrentWeek() : getCurrentMonth();
         dispatch(updateHomeViewTypeFilter({ type, date }))
-        const transactions = await getTransactionsGroupedAndFiltered(db, start.toISOString(), end.toISOString(), type);
+        const transactions = await getTransactionsGroupedAndFiltered(db, start.toISOString(), end.toISOString(), type, selectedAccount.id);
         dispatch(updateTransactionsGroupedByDate(transactions));
     }
 

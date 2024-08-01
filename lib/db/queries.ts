@@ -19,7 +19,7 @@ export function getAllCategories(db: SQLiteDatabase): Category[] {
                           FROM categories`);
 }
 
-export async function getTransactionsGroupedAndFiltered(db: SQLiteDatabase, startDate: string, endDate: string, type: 'Spent' | 'Revenue' | 'Balance'): Promise<TransactionsGroupedByDate[]> {
+export async function getTransactionsGroupedAndFiltered(db: SQLiteDatabase, startDate: string, endDate: string, type: 'Spent' | 'Revenue' | 'Balance', accountId = 0): Promise<TransactionsGroupedByDate[]> {
     try {
 
         // const statement = await db.prepareAsync('INSERT INTO transactions (recurrentDate, date, amount, notes, account_id, category_id) VALUES ($recurrentDate, $date, $amount, $notes, $account_id, $category_id)');
@@ -30,18 +30,40 @@ export async function getTransactionsGroupedAndFiltered(db: SQLiteDatabase, star
         // await statement.executeAsync({ $recurrentDate: 'none', $date: '2024-07-25T10:00:00.000Z', $amount: 10, $notes: '', $account_id: 1, $category_id: 9})
         // await statement.executeAsync({ $recurrentDate: 'monthly', $date: '2024-07-22T10:00:00.000Z', $amount: 420, $notes: 'Regalo de cumpleanos', $account_id: 1, $category_id: 2})
         // await statement.executeAsync({ $recurrentDate: 'none', $date: '2024-08-02T10:00:00.000Z', $amount: 6.50, $notes: 'Compras de bodega', $account_id: 1, $category_id: 1})
-        const groups: { total: number; formatted_date: string }[] = await db.getAllAsync(`
+
+        let groups: { total: number, formatted_date: string }[] = [];
+
+        if (accountId === 0) {
+            groups = await db.getAllAsync(`
             SELECT 
                 strftime('%Y-%m-%d', t.date) AS formatted_date,
                 ROUND(SUM(t.amount), 2) AS total,
-            c.type AS transaction_type
+            c.type AS transaction_type,
+            t.account_id
             FROM transactions t
                      LEFT JOIN categories c ON t.category_id = c.id
             WHERE date BETWEEN ? and ?
                 AND transaction_type = ?
             GROUP BY formatted_date
             ORDER BY date DESC;
-        `, [startDate, endDate, type === 'Revenue' ? 'income' : 'expense']);
+        `, [startDate, endDate, type === 'Revenue' ? 'income' : 'expense', accountId]);
+        } else {
+            groups = await db.getAllAsync(`
+            SELECT 
+                strftime('%Y-%m-%d', t.date) AS formatted_date,
+                ROUND(SUM(t.amount), 2) AS total,
+            c.type AS transaction_type,
+            t.account_id
+            FROM transactions t
+                     LEFT JOIN categories c ON t.category_id = c.id
+            WHERE date BETWEEN ? and ?
+                AND transaction_type = ?
+                AND t.account_id = ?
+            GROUP BY formatted_date
+            ORDER BY date DESC;
+        `, [startDate, endDate, type === 'Revenue' ? 'income' : 'expense', accountId]);
+        }
+
 
         console.log(groups);
         const transactions: FullTransactionRaw[] =  await db.getAllAsync(`
@@ -65,7 +87,7 @@ export async function getTransactionsGroupedAndFiltered(db: SQLiteDatabase, star
                 LEFT JOIN accounts a ON t.account_id = a.id
             WHERE t.date BETWEEN ? and ?
                 
-                `, [startDate, endDate]);
+                `, [startDate, endDate, type  === 'Revenue' ? 'income' : 'expense', accountId]);
 
         const formattedTransactions = transactions.map(t => ({
             id: t.id,

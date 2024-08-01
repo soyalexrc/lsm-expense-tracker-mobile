@@ -5,11 +5,15 @@ import {useEffect} from 'react';
 import 'react-native-reanimated';
 import NetInfo from '@react-native-community/netinfo';
 import Providers from "@/lib/components/Providers";
-import {useAppDispatch} from "@/lib/store/hooks";
+import {useAppDispatch, useAppSelector} from "@/lib/store/hooks";
 import {changeNetworkState} from "@/lib/store/features/network/networkSlice";
 import {getAllAccounts, getAllCategories, getTransactionsGroupedAndFiltered} from "@/lib/db";
 import {useSQLiteContext} from "expo-sqlite";
-import {updateAccountsList} from "@/lib/store/features/accounts/accountsSlice";
+import {
+    selectAccountGlobally,
+    selectSelectedAccountGlobal,
+    updateAccountsList
+} from "@/lib/store/features/accounts/accountsSlice";
 import {updateCategoriesList} from "@/lib/store/features/categories/categoriesSlice";
 import {updateTransactionsGroupedByDate} from "@/lib/store/features/transactions/transactionsSlice";
 import {getCurrentWeek} from "@/lib/helpers/date";
@@ -19,6 +23,7 @@ SplashScreen.preventAutoHideAsync();
 
 const InitialLayout = () => {
     const dispatch = useAppDispatch();
+    const selectedAccount = useAppSelector(selectSelectedAccountGlobal);
     const db = useSQLiteContext();
     const [loaded] = useFonts({
         SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
@@ -45,7 +50,7 @@ const InitialLayout = () => {
             dispatch(updateAccountsList(getAllAccounts(db)))
             dispatch(updateCategoriesList(getAllCategories(db)));
             const {start, end} = getCurrentWeek();
-            const transactions = await getTransactionsGroupedAndFiltered(db, start.toISOString(), end.toISOString(), 'Spent');
+            const transactions = await getTransactionsGroupedAndFiltered(db, start.toISOString(), end.toISOString(), 'Spent', selectedAccount.id);
             dispatch(updateTransactionsGroupedByDate(transactions));
         } catch (err) {
             console.log(err);
