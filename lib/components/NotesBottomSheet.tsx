@@ -28,6 +28,13 @@ export default function NotesBottomSheet({children, styles}: Props) {
         }
     }, []);
 
+    function handleButtonToggle() {
+        if (editMode) {
+            ref.current?.snapToPosition('25%')
+        }
+        setEditMode(!editMode);
+    }
+
     useEffect(() => {
         if (!isModalOpen) {
             ref.current?.close();
@@ -44,12 +51,12 @@ export default function NotesBottomSheet({children, styles}: Props) {
                 ref={ref}
                 index={0}
                 snapPoints={snapPoints}
-                keyboardBehavior="fillParent"
+                keyboardBehavior="interactive"
                 onChange={handleSheetChanges}
             >
                 {
                     editMode &&
-                    <BottomSheetTextInput multiline={true} numberOfLines={3} style={localStyles.input} />
+                    <BottomSheetTextInput autoFocus multiline={true} numberOfLines={3} style={localStyles.input} />
                 }
                 {
                     !editMode &&
@@ -57,7 +64,7 @@ export default function NotesBottomSheet({children, styles}: Props) {
                         <Text style={{ fontSize: 16, lineHeight: 20, }}>sample</Text>
                     </View>
                 }
-                <TouchableOpacity onPress={() => setEditMode(!editMode)} style={{ backgroundColor: 'black', padding: 12, marginHorizontal: 10, borderRadius: 12 }}>
+                <TouchableOpacity onPress={handleButtonToggle} style={{ backgroundColor: 'black', padding: 12, marginHorizontal: 10, borderRadius: 12 }}>
                     <Text style={{ textAlign: 'center', color: 'white', fontWeight: 'bold', fontSize: 16 }}>{editMode ? 'Save' : 'Edit'}</Text>
                 </TouchableOpacity>
             </BottomSheetModal>
