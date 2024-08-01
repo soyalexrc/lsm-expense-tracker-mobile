@@ -1,4 +1,4 @@
-import {FlatList, Pressable, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {useRouter} from "expo-router";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {Entypo} from "@expo/vector-icons";
@@ -15,16 +15,16 @@ import {selectSelectedCategory} from "@/lib/store/features/categories/categories
 import {formatByThousands, textShortener} from "@/lib/helpers/string";
 import CategoriesBottomSheet from "@/lib/components/CategoriesBottomSheet";
 import {selectLayoutModalState, updateLayoutModalState} from "@/lib/store/features/ui/uiSlice";
-import {keypadData} from "@/lib/utils/data/transaction";
 import AccountsBottomSheet from "@/lib/components/AccountsBottomSheet";
 import {selectSelectedAccountForm} from "@/lib/store/features/accounts/accountsSlice";
 import NotesBottomSheet from "@/lib/components/NotesBottomSheet";
 import {
-    onChangeAmount,
     onChangeDate,
     selectCurrentTransaction
 } from "@/lib/store/features/transactions/transactionsSlice";
 import TransactionKeyboard from "@/lib/components/TransactionKeyboard";
+import CustomBackdrop from "@/lib/components/CustomBackdrop";
+import {fromZonedTime} from "date-fns-tz";
 
 export default function Screen() {
     const router = useRouter();
@@ -37,21 +37,24 @@ export default function Screen() {
     const isModalOpen = useAppSelector(selectLayoutModalState)
     // callbacks
 
-    function closeModal() {
-        dispatch(updateLayoutModalState(false));
+    function formatDate(date: string | Date | number) {
+        return fromZonedTime(date, Intl.DateTimeFormat().resolvedOptions().timeZone);
     }
 
     return (
         <>
             <BottomSheetModalProvider>
                 <View style={styles.container}>
-                    {isModalOpen && <Pressable onPress={closeModal} style={styles.backdrop} />}
+                    {isModalOpen && <CustomBackdrop/>}
                     <View style={[styles.header, {paddingTop: insets.top}]}>
                         <TouchableOpacity onPress={() => router.back()}>
                             <Text style={{fontSize: 18, color: 'gray'}}>Cancel</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.calendarButton} onPress={() => setShowCalendar(true)}>
-                            <Text style={{fontSize: 18, color: 'gray'}}>{format(new Date(currentTransaction.date), 'MMM d')}</Text>
+                            <Text style={{
+                                fontSize: 18,
+                                color: 'gray'
+                            }}>{format(formatDate(currentTransaction.date), 'MMM d')}</Text>
                             <Entypo name="select-arrows" size={18} color="black"/>
                         </TouchableOpacity>
                         <View style={styles.headerRightSide}>
@@ -68,7 +71,8 @@ export default function Screen() {
                         <View style={styles.amount}>
                             <View style={{flexDirection: 'row', alignItems: 'flex-start', gap: 10}}>
                                 <Text style={{color: 'gray', fontSize: 32, marginTop: 10}}>S/</Text>
-                                <Text style={{fontSize: 64}}>{formatByThousands(String(currentTransaction.amount))}</Text>
+                                <Text
+                                    style={{fontSize: 64}}>{formatByThousands(String(currentTransaction.amount))}</Text>
                             </View>
                         </View>
                         <View style={styles.keyboard}>
@@ -84,44 +88,26 @@ export default function Screen() {
                                 gap: 20,
                                 paddingHorizontal: 30
                             }}>
-                                <AccountsBottomSheet styles={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    flex: 0.4,
-                                    paddingVertical: 10
-                                }}>
+                                <AccountsBottomSheet styles={styles.accountsWrapper}>
                                     <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
                                         <Text style={{fontSize: 16}}>{selectedAccount.icon}</Text>
                                         <Text style={{fontSize: 16}}>{textShortener(selectedAccount.title)}</Text>
                                     </View>
                                     <AntDesign name="arrowright" size={24} color="gray"/>
                                 </AccountsBottomSheet>
-                                <CategoriesBottomSheet styles={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    flex: 0.4,
-                                    paddingVertical: 10
-                                }}>
+                                <CategoriesBottomSheet styles={styles.categoriesWrapper}>
                                     <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
                                         <Text style={{fontSize: 16}}>{selectedCategory.icon}</Text>
                                         <Text style={{fontSize: 16}}>{textShortener(selectedCategory.title)}</Text>
                                     </View>
                                 </CategoriesBottomSheet>
                                 <View style={{flex: 0.2, justifyContent: 'center'}}>
-                                    <TouchableOpacity style={{
-                                        backgroundColor: 'black',
-                                        borderRadius: 100,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        width: 70,
-                                        height: 30
-                                    }} onPress={() => router.back()}>
+                                    <TouchableOpacity style={styles.saveButton} onPress={() => router.back()}>
                                         <Text style={{color: 'white', fontWeight: 'bold', fontSize: 16}}>Save</Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>
-                           <TransactionKeyboard />
+                            <TransactionKeyboard/>
                         </View>
                     </View>
                 </View>
@@ -134,9 +120,9 @@ export default function Screen() {
                 date={new Date(currentTransaction.date)}
                 maximumDate={new Date()}
                 onConfirm={(date) => {
-                    date.setHours(0);
+                    const timeZonedDate = formatDate(date)
                     setShowCalendar(false)
-                    dispatch(onChangeDate(date.toISOString()))
+                    dispatch(onChangeDate(timeZonedDate.toISOString()))
                 }}
                 onCancel={() => {
                     setShowCalendar(false)
@@ -177,15 +163,26 @@ const styles = StyleSheet.create({
     keyboard: {
         flex: 0.6,
     },
-
-    backdrop: {
-        position: 'absolute',
-        zIndex: 10,
+    saveButton: {
         backgroundColor: 'black',
-        opacity: 0.2,
-        left: 0,
-        top: 0,
-        width: '100%',
-        height: '100%'
+        borderRadius: 100,
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: 70,
+        height: 30
+    },
+    accountsWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flex: 0.4,
+        paddingVertical: 10
+    },
+    categoriesWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 0.4,
+        paddingVertical: 10
     }
+
 })

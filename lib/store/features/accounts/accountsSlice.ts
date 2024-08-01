@@ -1,17 +1,11 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RootState} from "@/lib/store";
+import {Account} from "@/lib/types/Transaction";
 
 export interface AccountsState {
     list: Account[];
     selectedForm: Account;
 }
-
-export type Account = {
-    title: string;
-    icon: string;
-    id: number;
-}
-
 
 const initialState: AccountsState = {
     list: [],

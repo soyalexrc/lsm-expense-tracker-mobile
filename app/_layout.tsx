@@ -7,10 +7,12 @@ import NetInfo from '@react-native-community/netinfo';
 import Providers from "@/lib/components/Providers";
 import {useAppDispatch} from "@/lib/store/hooks";
 import {changeNetworkState} from "@/lib/store/features/network/networkSlice";
-import {getAllAccounts, getAllCategories} from "@/lib/db";
+import {getAllAccounts, getAllCategories, getTransactionsGroupedAndFiltered} from "@/lib/db";
 import {useSQLiteContext} from "expo-sqlite";
-import {Account, updateAccountsList} from "@/lib/store/features/accounts/accountsSlice";
-import {Category, updateCategoriesList} from "@/lib/store/features/categories/categoriesSlice";
+import {updateAccountsList} from "@/lib/store/features/accounts/accountsSlice";
+import {updateCategoriesList} from "@/lib/store/features/categories/categoriesSlice";
+import {updateTransactionsGroupedByDate} from "@/lib/store/features/transactions/transactionsSlice";
+import {getCurrentWeek} from "@/lib/helpers/date";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -40,10 +42,11 @@ const InitialLayout = () => {
 
     async function updateStore() {
         try {
-            const accounts = getAllAccounts(db);
-            const categories = getAllCategories(db);
-            dispatch(updateAccountsList(accounts as Account[]))
-            dispatch(updateCategoriesList(categories as Category[]))
+            dispatch(updateAccountsList(getAllAccounts(db)))
+            dispatch(updateCategoriesList(getAllCategories(db)));
+            const {start, end} = getCurrentWeek();
+            const transactions = await getTransactionsGroupedAndFiltered(db, start.toISOString(), end.toISOString());
+            dispatch(updateTransactionsGroupedByDate(transactions));
         } catch (err) {
             console.log(err);
         }

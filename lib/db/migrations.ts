@@ -82,21 +82,19 @@ const migrations = [
                 )
             `);
 
-              setTimeout( async () => {
-                  await db.execAsync(`
-                    CREATE TABLE IF NOT EXISTS transactions (
+                await db.execAsync(`
+                CREATE TABLE IF NOT EXISTS transactions (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     date TEXT NOT NULL,
                     recurrentDate TEXT,
                     amount INTEGER NOT NULL,
-                    notes TEXT
+                    notes TEXT,
                     category_id INTEGER NOT NULL,
                     account_id INTEGER NOT NULL,
-                    FOREIGN KEY (category_id) REFERENCES categories(id)
+                    FOREIGN KEY (category_id) REFERENCES categories(id),
                     FOREIGN KEY (account_id) REFERENCES accounts(id)
                 )
             `);
-              }, 100)
 
                 const categories = db.getAllSync(`SELECT * FROM categories`);
                 if (categories.length < 1) {

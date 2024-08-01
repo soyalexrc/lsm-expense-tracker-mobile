@@ -1,16 +1,10 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RootState} from "@/lib/store";
+import {Category} from "@/lib/types/Transaction";
 
 export interface CategoriesState {
     list: Category[];
     selected: Category;
-}
-
-export type Category = {
-    title: string;
-    icon: string;
-    type: string;
-    id: number;
 }
 
 

@@ -1,5 +1,6 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RootState} from "@/lib/store";
+import {Category} from "@/lib/types/Transaction";
 
 export interface TransactionsListsState {
     resumeTransactions: ResumeItemsGroup
@@ -17,13 +18,6 @@ export type ResumeItem = {
     category: Category,
     isScheduled: boolean,
     value: string
-}
-
-export type Category = {
-    id: number | string,
-    label: string,
-    icon: string
-//     ICON DEBE SER UN TYPEOF ICON COLLECTION
 }
 
 const initialState: TransactionsListsState = {

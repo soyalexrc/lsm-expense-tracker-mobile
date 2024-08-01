@@ -7,77 +7,32 @@ import HeaderDropDownMenu from "@/lib/components/layout/AccountSelectDropdown";
 import {Feather} from "@expo/vector-icons";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {useRouter} from "expo-router";
+import {resetCurrentTransaction} from "@/lib/store/features/transactions/transactionsSlice";
+import {useAppDispatch} from "@/lib/store/hooks";
 
-const groups = [
-    {
-        key: 'spent',
-        items: [
-            {
-                key: '0',
-                title: 'Spent this week',
-                icon: '',
-                iconAndroid: ''
-            },
-            {
-                key: '1',
-                title: 'Spent this month',
-                icon: '',
-                iconAndroid: ''
-            }
-        ]
-    },
-    {
-        key: 'revenue',
-        items: [
-            {
-                key: '2',
-                title: 'Revenue this week',
-                icon: '',
-                iconAndroid: ''
-            },
-            {
-                key: '3',
-                title: 'Revenue this month',
-                icon: '',
-                iconAndroid: ''
-            }
-        ]
-    },
-    {
-        key: 'balance',
-        items: [
-            {
-                key: '4',
-                title: 'Current balance',
-                icon: '',
-                iconAndroid: ''
-            }
-        ]
-    }
-]
 
 
 export default function HomeScreen() {
     const router = useRouter();
     const schemeColor = useColorScheme()
+    const dispatch = useAppDispatch();
     const insets = useSafeAreaInsets()
-    const [selectedItem, setSelectedItem] = useState<string>('0')
 
-    function handleDropDownTriggerPress(value: 'on' | 'mixed' | 'off', keyItem: string) {
-        console.log({value, keyItem});
-        setSelectedItem(keyItem);
+    function onPressNewTransaction() {
+        dispatch(resetCurrentTransaction());
+        router.push('/transactionCreateUpdate');
     }
 
     return (
         <View style={styles.container}>
             <BlurView intensity={100} tint='prominent' style={[styles.header, { paddingTop: insets.top }]}>
                 <HeaderDropDownMenu />
-                <TouchableOpacity onPress={() => router.push('/transactionCreateUpdate')} style={[{backgroundColor: schemeColor === 'light' ? 'black' : 'white'}, styles.createButton]}>
+                <TouchableOpacity onPress={onPressNewTransaction} style={[{backgroundColor: schemeColor === 'light' ? 'black' : 'white'}, styles.createButton]}>
                     <Feather name="plus" size={20} color={schemeColor === 'light' ? 'white' : 'black'} />
                 </TouchableOpacity>
             </BlurView>
             <ScrollView showsVerticalScrollIndicator={false} style={[styles.container, { backgroundColor: schemeColor === 'light' ? 'white' : 'black', paddingTop: insets.top + 50  }]}>
-                <ResumeDropDown groups={groups} selectedItem={selectedItem} onSelect={handleDropDownTriggerPress} />
+                <ResumeDropDown />
 
                 {/*    Lista de items por semana, mes y cada dia como separator con el total*/}
                 <HomeResumeItems />

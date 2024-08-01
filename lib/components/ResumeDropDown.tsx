@@ -1,53 +1,100 @@
 import * as DropdownMenu from "zeego/dropdown-menu";
 import {StyleSheet, Text, View} from "react-native";
 import {useState} from "react";
-
-type Props = {
-    groups: Item[];
-    onSelect: (value: 'on' | 'mixed' | 'off', keyItem: string) => void;
-    selectedItem: string;
-}
+import {useAppDispatch, useAppSelector} from "@/lib/store/hooks";
+import {
+    selectHomeViewTypeFilter, selectTransactionsGroupedByDate,
+    updateHomeViewTypeFilter,
+    updateTransactionsGroupedByDate
+} from "@/lib/store/features/transactions/transactionsSlice";
+import {getCurrentMonth, getCurrentWeek} from "@/lib/helpers/date";
+import { getTransactionsGroupedAndFiltered} from "@/lib/db";
+import {useSQLiteContext} from "expo-sqlite";
+import {formatByThousands} from "@/lib/helpers/string";
 
 type Item = {
-    key: string;
+    key: 'Spent' | 'Revenue' | 'Balance';
     items: Array<{
         key: string;
-        title: string;
-        icon: string;
-        iconAndroid: string;
+        type: 'week' | 'month' | 'none'
     }>
 }
 
-export default function ResumeDropDown({onSelect, groups, selectedItem}: Props) {
-    const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
+const groups: Item[] = [
+    {
+        key: 'Spent',
+        items: [
+            {
+                key: '0',
+                type: 'week'
+            },
+            {
+                key: '1',
+                type: 'month',
+            }
+        ]
+    },
+    {
+        key: 'Revenue',
+        items: [
+            {
+                key: '2',
+                type: 'week',
+            },
+            {
+                key: '3',
+                type: 'month',
+            }
+        ]
+    },
+    {
+        key: 'Balance',
+        items: [
+            {
+                key: '4',
+                type: 'none',
+            }
+        ]
+    }
+]
 
-    function handleOnOpenChange(isOpen: boolean) {
-        console.log(isOpen)
+
+export default function ResumeDropDown() {
+    const db = useSQLiteContext();
+    const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
+    const dispatch = useAppDispatch();
+    const filterType = useAppSelector(selectHomeViewTypeFilter)
+    const transactionsInView = useAppSelector(selectTransactionsGroupedByDate);
+
+    async function handleSelectOption(type: 'Spent' | 'Revenue' | 'Balance', date: 'week' | 'month' | 'none') {
+        const {start, end} =  date === 'week' ? getCurrentWeek() : getCurrentMonth();
+        dispatch(updateHomeViewTypeFilter({ type, date }))
+        const transactions = await getTransactionsGroupedAndFiltered(db, start.toISOString(), end.toISOString());
+        dispatch(updateTransactionsGroupedByDate(transactions));
     }
 
-    function getTitleByKeySelected(keySelected: string) {
-        let result = '';
-        for (let i = 0; i < groups.length; i++) {
-            for (let j = 0; j < groups[i].items.length; j++) {
-                let key = groups[i].items[j].key;
-                if (key === keySelected) {
-                    result = groups[i].items.find(element => element.key === key)?.title ?? '';
-                }
-            }
+    function calculateTotal(): { amount: string, decimals: string } {
+        const total = transactionsInView.reduce((acc, cur) => acc + cur.total, 0);
+        return {
+            decimals: String(total).split('.')[1],
+            amount: String(total).split('.')[0],
         }
-        return result;
+    }
+
+    function formatTitleOption(key: string, type: string): string {
+        return key + ' this ' + type
     }
 
     return (
         <View style={styles.container}>
-            <DropdownMenu.Root onOpenChange={handleOnOpenChange}>
+            <DropdownMenu.Root>
                 <DropdownMenu.Trigger>
                     <View style={{ alignItems: 'center' }}>
-                        <Text style={[styles.fs18, isMenuOpen && styles.opacityMedium]}>{getTitleByKeySelected(selectedItem)}</Text>
+                        <Text style={[styles.fs18, isMenuOpen && styles.opacityMedium]}>{ filterType.type === 'Balance' ? 'Current balance' : `${filterType.type} this ${filterType.date}` }</Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <Text style={[styles.fs32, isMenuOpen && styles.opacityMedium]}>S/</Text>
-                            <Text style={[styles.fw64, styles.fwBold, isMenuOpen && styles.opacityMedium]}>5,748</Text>
-                            <Text style={[styles.fs32, styles.fwBold, isMenuOpen && styles.opacityMedium]}>.52</Text>
+                            <Text style={[styles.fs32, isMenuOpen && styles.opacityMedium]}>S/ </Text>
+                            <Text style={[styles.fw64, styles.fwBold, isMenuOpen && styles.opacityMedium]}>{formatByThousands(calculateTotal().amount)}</Text>
+                            <Text style={[styles.fs32, styles.fwBold, isMenuOpen && styles.opacityMedium]}>.{calculateTotal().decimals}</Text>
                         </View>
                     </View>
                 </DropdownMenu.Trigger>
@@ -58,9 +105,9 @@ export default function ResumeDropDown({onSelect, groups, selectedItem}: Props) 
                                 {
                                     group.items.map(item => (
                                         <DropdownMenu.CheckboxItem key={item.key}
-                                                                   value={selectedItem === item.key ? 'on' : 'off'}
-                                                                   onValueChange={(value) => onSelect(value, item.key)}>
-                                            <DropdownMenu.ItemTitle>{item.title}</DropdownMenu.ItemTitle>
+                                                                   value={(filterType.type === group.key && filterType.date === item.type) ? 'on' : 'off'}
+                                                                   onValueChange={() => handleSelectOption(group.key, item.type)}>
+                                            <DropdownMenu.ItemTitle>{formatTitleOption(group.key, item.type)}</DropdownMenu.ItemTitle>
                                             <DropdownMenu.ItemIndicator/>
                                         </DropdownMenu.CheckboxItem>
                                     ))

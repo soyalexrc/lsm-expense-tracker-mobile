@@ -1,35 +1,28 @@
-import React, { useMemo } from "react";
-import { BottomSheetBackdropProps } from "@gorhom/bottom-sheet";
-import Animated, {
-    Extrapolate,
-    interpolate,
-    useAnimatedStyle,
-} from "react-native-reanimated";
+import {Pressable, StyleSheet} from "react-native";
+import {updateLayoutModalState} from "@/lib/store/features/ui/uiSlice";
+import {useAppDispatch} from "@/lib/store/hooks";
 
-const CustomBackdrop = ({ animatedIndex, style }: BottomSheetBackdropProps) => {
-    // animated variables
-    const containerAnimatedStyle = useAnimatedStyle(() => ({
-        opacity: interpolate(
-            animatedIndex.value,
-            [0, 0.5],
-            [0.2, 0.5],
-            Extrapolate.CLAMP
-        ),
-    }));
+export default function CustomBackdrop() {
+    const dispatch = useAppDispatch();
 
-    // styles
-    const containerStyle = useMemo(
-        () => [
-            style,
-            {
-                backgroundColor: "black",
-            },
-            containerAnimatedStyle,
-        ],
-        [style, containerAnimatedStyle]
-    );
+    function closeModal() {
+        dispatch(updateLayoutModalState(false));
+    }
 
-    return <Animated.View style={containerStyle} />;
-};
+    return (
+        <Pressable onPress={closeModal} style={styles.backdrop} />
+    )
+}
 
-export default CustomBackdrop;
+const styles = StyleSheet.create({
+    backdrop: {
+        position: 'absolute',
+        zIndex: 10,
+        backgroundColor: 'black',
+        opacity: 0.2,
+        left: 0,
+        top: 0,
+        width: '100%',
+        height: '100%'
+    }
+})
