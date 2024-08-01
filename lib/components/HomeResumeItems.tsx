@@ -37,7 +37,7 @@ export default function HomeResumeItems() {
         } else if (isYesterday(localDate)) {
             return 'Yesterday';
         } else if (isSameWeek(localDate, now)) {
-            return 'Last ' + format(localDate, 'EEEE'); // e.g., Monday, Tuesday
+            return format(localDate, 'EEEE'); // e.g., Monday, Tuesday
         } else {
             // For dates beyond a week, use formatDistanceToNow
             return formatDistanceToNow(date, { addSuffix: true });

@@ -47,6 +47,14 @@ export type HomeViewTypeFilter = {
     type: 'Spent' | 'Revenue' | 'Balance';
 }
 
+export type GroupItem = {
+    key: 'Spent' | 'Revenue' | 'Balance';
+    items: Array<{
+        key: string;
+        type: 'week' | 'month' | 'none'
+    }>
+}
+
 export type Category = {
     title: string;
     icon: string;

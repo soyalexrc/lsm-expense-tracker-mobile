@@ -11,53 +11,7 @@ import {getCurrentMonth, getCurrentWeek} from "@/lib/helpers/date";
 import { getTransactionsGroupedAndFiltered} from "@/lib/db";
 import {useSQLiteContext} from "expo-sqlite";
 import {formatByThousands} from "@/lib/helpers/string";
-
-type Item = {
-    key: 'Spent' | 'Revenue' | 'Balance';
-    items: Array<{
-        key: string;
-        type: 'week' | 'month' | 'none'
-    }>
-}
-
-const groups: Item[] = [
-    {
-        key: 'Spent',
-        items: [
-            {
-                key: '0',
-                type: 'week'
-            },
-            {
-                key: '1',
-                type: 'month',
-            }
-        ]
-    },
-    {
-        key: 'Revenue',
-        items: [
-            {
-                key: '2',
-                type: 'week',
-            },
-            {
-                key: '3',
-                type: 'month',
-            }
-        ]
-    },
-    {
-        key: 'Balance',
-        items: [
-            {
-                key: '4',
-                type: 'none',
-            }
-        ]
-    }
-]
-
+import {groups} from "@/lib/utils/data/transaction";
 
 export default function ResumeDropDown() {
     const db = useSQLiteContext();
@@ -69,7 +23,7 @@ export default function ResumeDropDown() {
     async function handleSelectOption(type: 'Spent' | 'Revenue' | 'Balance', date: 'week' | 'month' | 'none') {
         const {start, end} =  date === 'week' ? getCurrentWeek() : getCurrentMonth();
         dispatch(updateHomeViewTypeFilter({ type, date }))
-        const transactions = await getTransactionsGroupedAndFiltered(db, start.toISOString(), end.toISOString());
+        const transactions = await getTransactionsGroupedAndFiltered(db, start.toISOString(), end.toISOString(), type);
         dispatch(updateTransactionsGroupedByDate(transactions));
     }
 

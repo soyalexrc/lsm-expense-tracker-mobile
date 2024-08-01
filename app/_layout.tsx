@@ -45,7 +45,7 @@ const InitialLayout = () => {
             dispatch(updateAccountsList(getAllAccounts(db)))
             dispatch(updateCategoriesList(getAllCategories(db)));
             const {start, end} = getCurrentWeek();
-            const transactions = await getTransactionsGroupedAndFiltered(db, start.toISOString(), end.toISOString());
+            const transactions = await getTransactionsGroupedAndFiltered(db, start.toISOString(), end.toISOString(), 'Spent');
             dispatch(updateTransactionsGroupedByDate(transactions));
         } catch (err) {
             console.log(err);
