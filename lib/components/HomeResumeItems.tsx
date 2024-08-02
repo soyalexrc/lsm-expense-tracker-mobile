@@ -16,7 +16,12 @@ import {fromZonedTime} from 'date-fns-tz';
 import {selectCategory} from "@/lib/store/features/categories/categoriesSlice";
 import {selectAccountForm, selectSelectedAccountGlobal} from "@/lib/store/features/accounts/accountsSlice";
 import {formatDateHomeItemGroups, getCurrentMonth, getCurrentWeek} from "@/lib/helpers/date";
-import {createTransaction, deleteTransaction, getTransactionsGroupedAndFiltered} from "@/lib/db";
+import {
+    createTransaction,
+    deleteTransaction,
+    getTransactionsGroupedAndFiltered,
+    stopRecurringInTransaction
+} from "@/lib/db";
 import {useSQLiteContext} from "expo-sqlite";
 import {useState} from "react";
 
@@ -58,13 +63,22 @@ export default function HomeResumeItems() {
         }
     }
 
+    async function stopRecurrent(transactionId: number) {
+        const {start, end} = filterType.date === 'week' ? getCurrentWeek() : getCurrentMonth()
+        const updatedTransaction = await stopRecurringInTransaction(db, transactionId)
+        if (updatedTransaction) {
+            const transactions = await getTransactionsGroupedAndFiltered(db, start.toISOString(), end.toISOString(), filterType.type, selectedAccount.id);
+            dispatch(updateTransactionsGroupedByDate(transactions));
+        }
+    }
+
     return (
         <>
             {transactions?.map(group => (
                 <View key={group.id}>
                     <View style={styles.container}>
-                        <View style={{width: 20}}/>
-                        <View style={[styles.imageWithLabel, {margin: 12}]}>
+                        <View style={{width: 30}}/>
+                        <View style={[styles.imageWithLabel, {marginVertical: 12}]}>
                             <Text style={{color: 'gray', fontSize: 14}}>{formatDateHomeItemGroups(group.date)}</Text>
                             <Text style={{color: 'gray', fontSize: 14}}>S/ {group.total}</Text>
                         </View>
@@ -91,7 +105,7 @@ export default function HomeResumeItems() {
                                                  avoidCollisions={true}>
                                 {
                                     item.recurrentDate !== 'none' &&
-                                    <ContextMenu.Item key='recurring'>
+                                    <ContextMenu.Item onSelect={() => stopRecurrent(item.id)} key='recurring'>
                                         <ContextMenu.ItemTitle>Stop Recurring</ContextMenu.ItemTitle>
                                         <ContextMenu.ItemIcon
                                             ios={{

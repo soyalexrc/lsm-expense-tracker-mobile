@@ -28,6 +28,7 @@ import {fromZonedTime} from "date-fns-tz";
 import {createTransaction, getTransactionsGroupedAndFiltered, updateTransaction} from "@/lib/db";
 import {useSQLiteContext} from "expo-sqlite";
 import {getCurrentMonth, getCurrentWeek} from "@/lib/helpers/date";
+import sleep from "@/lib/helpers/sleep";
 
 export default function Screen() {
     const router = useRouter();
@@ -60,10 +61,10 @@ export default function Screen() {
                 date: currentTransaction.date,
                 notes: currentTransaction.notes
             });
-            console.log(updatedTransaction)
             if (updatedTransaction) {
                 const transactions = await getTransactionsGroupedAndFiltered(db, start.toISOString(), end.toISOString(), filterType.type, selectedAccount.id);
                 dispatch(updateTransactionsGroupedByDate(transactions));
+                await sleep(200);
                 router.back()
             }
         } else {
@@ -76,10 +77,10 @@ export default function Screen() {
                 date: currentTransaction.date,
                 notes: currentTransaction.notes
             });
-            console.log(newTransaction)
             if (newTransaction) {
                 const transactions = await getTransactionsGroupedAndFiltered(db, start.toISOString(), end.toISOString(), filterType.type, selectedAccount.id);
                 dispatch(updateTransactionsGroupedByDate(transactions));
+                await sleep(200);
                 router.back()
             }
         }
