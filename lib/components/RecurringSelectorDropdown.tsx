@@ -44,16 +44,14 @@ const items = [
 export default function RecurringSelectorDropdown() {
     const currentTransaction = useAppSelector(selectCurrentTransaction);
     const dispatch = useAppDispatch();
-    function handleOnOpenChange(isOpen: boolean) {
-        console.log(isOpen)
-    }
+
 
     function onSelect(value: 'on' | 'mixed' | 'off', keyItem: string) {
         dispatch(onRecurrentSettingChange(keyItem));
     }
 
     return (
-        <DropdownMenu.Root onOpenChange={handleOnOpenChange}>
+        <DropdownMenu.Root>
             <DropdownMenu.Trigger>
                 <TouchableOpacity>
                     <MaterialCommunityIcons name="calendar-sync-outline" size={24} color={currentTransaction.recurrentDate === 'none' ? 'gray' : 'black'}/>

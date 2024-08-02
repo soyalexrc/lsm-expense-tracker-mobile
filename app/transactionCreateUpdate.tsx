@@ -20,15 +20,20 @@ import {selectSelectedAccountForm} from "@/lib/store/features/accounts/accountsS
 import NotesBottomSheet from "@/lib/components/NotesBottomSheet";
 import {
     onChangeDate,
-    selectCurrentTransaction
+    selectCurrentTransaction, selectHomeViewTypeFilter, updateTransactionsGroupedByDate
 } from "@/lib/store/features/transactions/transactionsSlice";
 import TransactionKeyboard from "@/lib/components/TransactionKeyboard";
 import CustomBackdrop from "@/lib/components/CustomBackdrop";
 import {fromZonedTime} from "date-fns-tz";
+import {createTransaction, getTransactionsGroupedAndFiltered} from "@/lib/db";
+import {useSQLiteContext} from "expo-sqlite";
+import {getCurrentMonth, getCurrentWeek} from "@/lib/helpers/date";
 
 export default function Screen() {
     const router = useRouter();
+    const db = useSQLiteContext();
     const dispatch = useAppDispatch();
+    const filterType = useAppSelector(selectHomeViewTypeFilter)
     const currentTransaction = useAppSelector(selectCurrentTransaction)
     const selectedCategory = useAppSelector(selectSelectedCategory);
     const selectedAccount = useAppSelector(selectSelectedAccountForm);
@@ -39,6 +44,31 @@ export default function Screen() {
 
     function formatDate(date: string | Date | number) {
         return fromZonedTime(date, Intl.DateTimeFormat().resolvedOptions().timeZone);
+    }
+
+    async function handleCreateOrEditTransaction() {
+    //     Check if it is create id = -1 or update id > 0
+        const {start, end} = filterType.date === 'week' ? getCurrentWeek() : getCurrentMonth()
+
+        if (currentTransaction.id > 0) {
+
+        } else {
+            const newTransaction = await createTransaction(db, {
+                id: -1,
+                account_id: selectedAccount.id,
+                category_id: selectedCategory.id,
+                recurrentDate: currentTransaction.recurrentDate,
+                amount: currentTransaction.amount,
+                date: currentTransaction.date,
+                notes: currentTransaction.notes
+            });
+            console.log(newTransaction)
+            if (newTransaction) {
+                const transactions = await getTransactionsGroupedAndFiltered(db, start.toISOString(), end.toISOString(), filterType.type, selectedAccount.id);
+                dispatch(updateTransactionsGroupedByDate(transactions));
+                router.back()
+            }
+        }
     }
 
     return (
@@ -102,7 +132,7 @@ export default function Screen() {
                                     </View>
                                 </CategoriesBottomSheet>
                                 <View style={{flex: 0.2, justifyContent: 'center'}}>
-                                    <TouchableOpacity style={styles.saveButton} onPress={() => router.back()}>
+                                    <TouchableOpacity style={styles.saveButton} onPress={handleCreateOrEditTransaction}>
                                         <Text style={{color: 'white', fontWeight: 'bold', fontSize: 16}}>Save</Text>
                                     </TouchableOpacity>
                                 </View>

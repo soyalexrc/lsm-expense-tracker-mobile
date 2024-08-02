@@ -65,7 +65,6 @@ export async function getTransactionsGroupedAndFiltered(db: SQLiteDatabase, star
         }
 
 
-        console.log(groups);
         const transactions: FullTransactionRaw[] =  await db.getAllAsync(`
         SELECT
             t.id,
@@ -136,17 +135,86 @@ export async function createAccount(db: SQLiteDatabase, account: {
         };
     } else {
         const statement = await db.prepareAsync('INSERT INTO accounts (title, icon, balance, positive_state) VALUES ($title, $icon, $balance, $positive_state)');
-        await statement.executeAsync({
-            $title: account.title,
-            $icon: account.icon,
-            $balance: account.balance,
-            $positive_state: account.positiveState
-        });
-        const accountCreated = await db.getAllAsync('SELECT * FROM accounts ORDER BY id DESC LIMIT 1');
-        return {
-            error: false,
-            desc: '',
-            data: accountCreated[0]
+        try {
+            await statement.executeAsync({
+                $title: account.title,
+                $icon: account.icon,
+                $balance: account.balance,
+                $positive_state: account.positiveState
+            });
+            const accountCreated = await db.getAllAsync('SELECT * FROM accounts ORDER BY id DESC LIMIT 1');
+            return {
+                error: false,
+                desc: '',
+                data: accountCreated[0]
+            }
+        } catch (err) {
+
+        } finally {
+            await statement.finalizeAsync();
         }
+
     }
 };
+
+export async function deleteTransaction(db: SQLiteDatabase, transactionId: number)  {
+    try {
+        return await db.runAsync('DELETE FROM transactions WHERE id = $transactionId', { $transactionId: transactionId })
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+export async function createTransaction(db: SQLiteDatabase, transaction: Transaction): Promise<FullTransaction | {}> {
+    const statement = await db.prepareAsync(`INSERT INTO transactions (amount, recurrentDate, date, notes, account_id, category_id) VALUES ($amount, $recurrentDate, $date, $notes, $account_id, $category_id)`)
+    try {
+        const t = await statement.executeAsync({ $amount: Number(transaction.amount), $recurrentDate: transaction.recurrentDate, $date: transaction.date, $notes: transaction.notes, $account_id: transaction.account_id, $category_id: transaction.category_id });
+        const retrievedTransaction: any = await db.getFirstAsync(`
+            SELECT
+                t.id,
+                t.amount,
+                t.recurrentDate,
+                strftime('%Y-%m-%d', t.date) AS date,
+                t.notes,
+                c.title AS category_title,
+                c.id AS category_id,
+                c.icon AS category_icon,
+                c.type AS category_type,
+                a.title AS account_title,
+                a.icon AS account_icon,
+                a.id AS account_id,
+                a.balance AS account_balance,
+                a.positive_state AS account_positive_state
+            FROM transactions  t
+            LEFT JOIN categories c ON t.category_id = c.id
+            LEFT JOIN accounts a ON t.account_id = a.id
+            WHERE t.id = $id
+            `, { $id: t.lastInsertRowId })
+
+        return {
+            id: retrievedTransaction.id,
+            account: {
+                id: retrievedTransaction.account_id,
+                title: retrievedTransaction.account_title,
+                icon: retrievedTransaction.account_icon,
+                balance: retrievedTransaction.account_balance,
+                positive_status: retrievedTransaction.account_positive_status
+            },
+            category: {
+                id: retrievedTransaction.category_id,
+                icon: retrievedTransaction.category_icon,
+                title: retrievedTransaction.category_title,
+                type: retrievedTransaction.category_type
+            },
+            amount: String(retrievedTransaction.amount),
+            notes: retrievedTransaction.notes,
+            date: retrievedTransaction.date,
+            recurrentDate: retrievedTransaction.recurrentDate
+        }
+    } catch (err) {
+        console.error(err);
+        return {}
+    } finally {
+        await statement.finalizeAsync();
+    }
+}

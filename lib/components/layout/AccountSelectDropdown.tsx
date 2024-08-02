@@ -36,7 +36,6 @@ export default function AccountSelectDropdown() {
             const transactions = await getTransactionsGroupedAndFiltered(db, start.toISOString(), end.toISOString(), filterType.type, 0);
             dispatch(updateTransactionsGroupedByDate(transactions));
         } else {
-            console.log(account);
             dispatch(selectAccountGlobally(account));
             const transactions = await getTransactionsGroupedAndFiltered(db, start.toISOString(), end.toISOString(), filterType.type, account.id);
             dispatch(updateTransactionsGroupedByDate(transactions));

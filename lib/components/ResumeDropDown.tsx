@@ -10,9 +10,10 @@ import {
 import {getCurrentMonth, getCurrentWeek} from "@/lib/helpers/date";
 import { getTransactionsGroupedAndFiltered} from "@/lib/db";
 import {useSQLiteContext} from "expo-sqlite";
-import {formatByThousands} from "@/lib/helpers/string";
+import {calculateTotal, formatByThousands, formatTitleOption} from "@/lib/helpers/string";
 import {groups} from "@/lib/utils/data/transaction";
 import {selectSelectedAccountGlobal} from "@/lib/store/features/accounts/accountsSlice";
+import {TransactionsGroupedByDate} from "@/lib/types/Transaction";
 
 export default function ResumeDropDown() {
     const db = useSQLiteContext();
@@ -29,18 +30,6 @@ export default function ResumeDropDown() {
         dispatch(updateTransactionsGroupedByDate(transactions));
     }
 
-    function calculateTotal(): { amount: string, decimals: string } {
-        const total = transactionsInView.reduce((acc, cur) => acc + cur.total, 0);
-        return {
-            decimals: String(total).split('.')[1],
-            amount: String(total).split('.')[0],
-        }
-    }
-
-    function formatTitleOption(key: string, type: string): string {
-        return key + ' this ' + type
-    }
-
     return (
         <View style={styles.container}>
             <DropdownMenu.Root>
@@ -49,8 +38,8 @@ export default function ResumeDropDown() {
                         <Text style={[styles.fs18, isMenuOpen && styles.opacityMedium]}>{ filterType.type === 'Balance' ? 'Current balance' : `${filterType.type} this ${filterType.date}` }</Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Text style={[styles.fs32, isMenuOpen && styles.opacityMedium]}>S/ </Text>
-                            <Text style={[styles.fw64, styles.fwBold, isMenuOpen && styles.opacityMedium]}>{formatByThousands(calculateTotal().amount)}</Text>
-                            <Text style={[styles.fs32, styles.fwBold, isMenuOpen && styles.opacityMedium]}>.{calculateTotal().decimals}</Text>
+                            <Text style={[styles.fw64, styles.fwBold, isMenuOpen && styles.opacityMedium]}>{formatByThousands(calculateTotal(transactionsInView).amount)}</Text>
+                            <Text style={[styles.fs32, styles.fwBold, isMenuOpen && styles.opacityMedium]}>.{calculateTotal(transactionsInView).decimals}</Text>
                         </View>
                     </View>
                 </DropdownMenu.Trigger>

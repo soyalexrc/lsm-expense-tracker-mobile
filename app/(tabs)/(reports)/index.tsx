@@ -97,7 +97,6 @@ export default function ReportScreen() {
   const [selectedItem, setSelectedItem] = useState<string>('0')
 
   function handleDropDownTriggerPress(value: 'on' | 'mixed' | 'off', keyItem: string) {
-    console.log({value, keyItem});
     setSelectedItem(keyItem);
   }
   return (

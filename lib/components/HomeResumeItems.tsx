@@ -1,22 +1,32 @@
-import {Image, Pressable, StyleSheet, Text, View} from "react-native";
+import {ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, View} from "react-native";
 import * as ContextMenu from 'zeego/context-menu'
 import {useRouter} from "expo-router";
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import {useAppDispatch, useAppSelector} from "@/lib/store/hooks";
 import {
+    addTransactionInHomeList,
+    removeTransactionFromHomeList,
+    selectHomeViewTypeFilter,
     selectTransactionsGroupedByDate,
-    updateCurrentTransaction
+    updateCurrentTransaction, updateTransactionsGroupedByDate
 } from "@/lib/store/features/transactions/transactionsSlice";
-import {FullTransaction} from "@/lib/types/Transaction";
+import {FullTransaction, Transaction} from "@/lib/types/Transaction";
 import {format, formatDistanceToNow, isToday, isYesterday, isSameWeek, isSameMonth} from "date-fns";
-import { fromZonedTime } from 'date-fns-tz';
+import {fromZonedTime} from 'date-fns-tz';
 import {selectCategory} from "@/lib/store/features/categories/categoriesSlice";
-import {selectAccountForm} from "@/lib/store/features/accounts/accountsSlice";
+import {selectAccountForm, selectSelectedAccountGlobal} from "@/lib/store/features/accounts/accountsSlice";
+import {formatDateHomeItemGroups, getCurrentMonth, getCurrentWeek} from "@/lib/helpers/date";
+import {createTransaction, deleteTransaction, getTransactionsGroupedAndFiltered} from "@/lib/db";
+import {useSQLiteContext} from "expo-sqlite";
+import {useState} from "react";
 
 export default function HomeResumeItems() {
+    const db = useSQLiteContext();
     const router = useRouter();
     const dispatch = useAppDispatch();
     const transactions = useAppSelector(selectTransactionsGroupedByDate);
+    const filterType = useAppSelector(selectHomeViewTypeFilter)
+    const selectedAccount = useAppSelector(selectSelectedAccountGlobal);
 
     function handlePress(t: FullTransaction) {
         dispatch(updateCurrentTransaction({
@@ -29,20 +39,24 @@ export default function HomeResumeItems() {
         router.push('/transactionCreateUpdate')
     }
 
-    const formatDate = (date: string) => {
-        const now = new Date();
-        const localDate = fromZonedTime(date, Intl.DateTimeFormat().resolvedOptions().timeZone);
-        if (isToday(localDate)) {
-            return 'Today';
-        } else if (isYesterday(localDate)) {
-            return 'Yesterday';
-        } else if (isSameWeek(localDate, now)) {
-            return format(localDate, 'EEEE'); // e.g., Monday, Tuesday
-        } else {
-            // For dates beyond a week, use formatDistanceToNow
-            return formatDistanceToNow(date, { addSuffix: true });
+    function handleDeleteItem(id: number, groupId: number) {
+        Alert.alert('Delete entry?', 'This action cannot be undone.', [
+            {style: 'default', text: 'Cancel', isPreferred: true},
+            {
+                style: 'destructive', text: 'Delete', isPreferred: true, onPress: async () => {
+                    dispatch(removeTransactionFromHomeList({transactionId: id, groupId}));
+                    await deleteTransaction(db, id)
+                }
+            },
+        ])
+    }
+
+    async function duplicateTransaction(transaction: FullTransaction) {
+        const newTransaction = await createTransaction(db, { ...transaction, category_id: transaction.category.id, account_id: transaction.account.id })
+        if (newTransaction) {
+            dispatch(addTransactionInHomeList(newTransaction as FullTransaction))
         }
-    };
+    }
 
     return (
         <>
@@ -51,23 +65,24 @@ export default function HomeResumeItems() {
                     <View style={styles.container}>
                         <View style={{width: 20}}/>
                         <View style={[styles.imageWithLabel, {margin: 12}]}>
-                            <Text style={{color: 'gray', fontSize: 14}}>{formatDate(group.date)}</Text>
+                            <Text style={{color: 'gray', fontSize: 14}}>{formatDateHomeItemGroups(group.date)}</Text>
                             <Text style={{color: 'gray', fontSize: 14}}>S/ {group.total}</Text>
                         </View>
                     </View>
                     {group.items?.map((item) => (
                         <ContextMenu.Root key={item.id}>
                             <ContextMenu.Trigger>
-                                <Pressable style={[styles.container, { backgroundColor: 'white' }]} onPress={() => handlePress(item)}>
-                                    <Text style={{ fontSize: 30 }}>{item.category.icon}</Text>
+                                <Pressable style={[styles.container, {backgroundColor: 'white'}]}
+                                           onPress={() => handlePress(item)}>
+                                    <Text style={{fontSize: 30}}>{item.category.icon}</Text>
                                     <View style={styles.imageWithLabel}>
-                                       <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
-                                           {
-                                               item.recurrentDate !== 'none' &&
-                                               <FontAwesome6 name="arrow-rotate-left" size={16} color="gray" />
-                                           }
-                                           <Text style={styles.label}>{item.category.title}</Text>
-                                       </View>
+                                        <View style={{flexDirection: 'row', gap: 10, alignItems: 'center'}}>
+                                            {
+                                                item.recurrentDate !== 'none' &&
+                                                <FontAwesome6 name="arrow-rotate-left" size={16} color="gray"/>
+                                            }
+                                            <Text style={styles.label}>{item.category.title}</Text>
+                                        </View>
                                         <Text>S/ {item.amount}</Text>
                                     </View>
                                 </Pressable>
@@ -85,7 +100,7 @@ export default function HomeResumeItems() {
                                         />
                                     </ContextMenu.Item>
                                 }
-                                <ContextMenu.Item key='duplicate'>
+                                <ContextMenu.Item key='duplicate' onSelect={() => duplicateTransaction(item)}>
                                     <ContextMenu.ItemTitle>Duplicate</ContextMenu.ItemTitle>
                                     <ContextMenu.ItemIcon
                                         ios={{
@@ -93,7 +108,7 @@ export default function HomeResumeItems() {
                                         }}
                                     />
                                 </ContextMenu.Item>
-                                <ContextMenu.Item key='delete' destructive>
+                                <ContextMenu.Item key='delete' onSelect={() => handleDeleteItem(item.id, group.id)} destructive>
                                     <ContextMenu.ItemTitle>Delete</ContextMenu.ItemTitle>
                                     <ContextMenu.ItemIcon
                                         ios={{

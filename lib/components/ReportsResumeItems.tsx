@@ -6,7 +6,6 @@ export default function ReportsResumeItems({ data, onPress }: { data: any[], onP
     const router = useRouter();
 
     function handlePress(id: string) {
-        console.log('here', id)
         router.push('/(tabs)/(reports)/detailGroup')
     }
 
