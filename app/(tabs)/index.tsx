@@ -1,6 +1,6 @@
 import ResumeDropDown from "@/lib/components/ResumeDropDown";
 import React, {useState} from "react";
-import {ScrollView, StyleSheet, TouchableOpacity, useColorScheme, View} from "react-native";
+import {ScrollView, StyleSheet, Text, TouchableOpacity, useColorScheme, View} from "react-native";
 import HomeResumeItems from "@/lib/components/HomeResumeItems";
 import {BlurView} from "expo-blur";
 import HeaderDropDownMenu from "@/lib/components/layout/AccountSelectDropdown";
@@ -35,6 +35,7 @@ export default function HomeScreen() {
                 <ResumeDropDown />
 
                 {/*    Lista de items por semana, mes y cada dia como separator con el total*/}
+                <Text>This is from update OTA</Text>
                 <HomeResumeItems />
                 <View style={{ height: 200 }} />
             </ScrollView>
