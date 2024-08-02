@@ -218,3 +218,60 @@ export async function createTransaction(db: SQLiteDatabase, transaction: Transac
         await statement.finalizeAsync();
     }
 }
+
+
+export async function updateTransaction(db: SQLiteDatabase, transaction: Transaction): Promise<FullTransaction | {}> {
+   console.log(transaction.id);
+    const statement = await db.prepareAsync(`
+        UPDATE transactions SET amount = ?, recurrentDate = ?, date = ?, notes = ?, account_id = ?, category_id = ? WHERE id = ?
+    `);
+    try {
+        const t= await statement.executeAsync([Number(transaction.amount), transaction.recurrentDate, transaction.date, transaction.notes, transaction.account_id,  transaction.category_id, transaction.id]);
+        console.log(t);
+        const retrievedTransaction: any = await db.getFirstAsync(`
+            SELECT
+                t.id,
+                t.amount,
+                t.recurrentDate,
+                strftime('%Y-%m-%d', t.date) AS date,
+                t.notes,
+                c.title AS category_title,
+                c.id AS category_id,
+                c.icon AS category_icon,
+                c.type AS category_type,
+                a.title AS account_title,
+                a.icon AS account_icon,
+                a.id AS account_id,
+                a.balance AS account_balance,
+                a.positive_state AS account_positive_state
+            FROM transactions  t
+            LEFT JOIN categories c ON t.category_id = c.id
+            LEFT JOIN accounts a ON t.account_id = a.id
+            WHERE t.id = $id
+            `, { $id: transaction.id })
+
+        return {
+            id: retrievedTransaction.id,
+            account: {
+                id: retrievedTransaction.account_id,
+                title: retrievedTransaction.account_title,
+                icon: retrievedTransaction.account_icon,
+                balance: retrievedTransaction.account_balance,
+                positive_status: retrievedTransaction.account_positive_status
+            },
+            category: {
+                id: retrievedTransaction.category_id,
+                icon: retrievedTransaction.category_icon,
+                title: retrievedTransaction.category_title,
+                type: retrievedTransaction.category_type
+            },
+            amount: String(retrievedTransaction.amount),
+            notes: retrievedTransaction.notes,
+            date: retrievedTransaction.date,
+            recurrentDate: retrievedTransaction.recurrentDate
+        }
+    } catch (err) {
+        console.error(err);
+        return {}
+    }
+}

@@ -25,7 +25,7 @@ import {
 import TransactionKeyboard from "@/lib/components/TransactionKeyboard";
 import CustomBackdrop from "@/lib/components/CustomBackdrop";
 import {fromZonedTime} from "date-fns-tz";
-import {createTransaction, getTransactionsGroupedAndFiltered} from "@/lib/db";
+import {createTransaction, getTransactionsGroupedAndFiltered, updateTransaction} from "@/lib/db";
 import {useSQLiteContext} from "expo-sqlite";
 import {getCurrentMonth, getCurrentWeek} from "@/lib/helpers/date";
 
@@ -51,7 +51,21 @@ export default function Screen() {
         const {start, end} = filterType.date === 'week' ? getCurrentWeek() : getCurrentMonth()
 
         if (currentTransaction.id > 0) {
-
+            const updatedTransaction = await updateTransaction(db, {
+                id: currentTransaction.id,
+                account_id: selectedAccount.id,
+                category_id: selectedCategory.id,
+                recurrentDate: currentTransaction.recurrentDate,
+                amount: currentTransaction.amount,
+                date: currentTransaction.date,
+                notes: currentTransaction.notes
+            });
+            console.log(updatedTransaction)
+            if (updatedTransaction) {
+                const transactions = await getTransactionsGroupedAndFiltered(db, start.toISOString(), end.toISOString(), filterType.type, selectedAccount.id);
+                dispatch(updateTransactionsGroupedByDate(transactions));
+                router.back()
+            }
         } else {
             const newTransaction = await createTransaction(db, {
                 id: -1,
