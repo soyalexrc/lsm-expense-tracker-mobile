@@ -24,11 +24,13 @@ import {
 } from "@/lib/db";
 import {useSQLiteContext} from "expo-sqlite";
 import {useState} from "react";
+import {useTheme} from "@react-navigation/native";
 
 export default function HomeResumeItems() {
     const db = useSQLiteContext();
     const router = useRouter();
     const dispatch = useAppDispatch();
+    const colors = useTheme().colors;
     const transactions = useAppSelector(selectTransactionsGroupedByDate);
     const filterType = useAppSelector(selectHomeViewTypeFilter)
     const selectedAccount = useAppSelector(selectSelectedAccountGlobal);
@@ -86,7 +88,7 @@ export default function HomeResumeItems() {
                     {group.items?.map((item) => (
                         <ContextMenu.Root key={item.id}>
                             <ContextMenu.Trigger>
-                                <Pressable style={[styles.container, {backgroundColor: 'white'}]}
+                                <Pressable style={[styles.container, {backgroundColor: colors.background}]}
                                            onPress={() => handlePress(item)}>
                                     <Text style={{fontSize: 30}}>{item.category.icon}</Text>
                                     <View style={styles.imageWithLabel}>
@@ -95,9 +97,9 @@ export default function HomeResumeItems() {
                                                 item.recurrentDate !== 'none' &&
                                                 <FontAwesome6 name="arrow-rotate-left" size={16} color="gray"/>
                                             }
-                                            <Text style={styles.label}>{item.category.title}</Text>
+                                            <Text style={[styles.label, { color: colors.text }]}>{item.category.title}</Text>
                                         </View>
-                                        <Text>S/ {item.amount}</Text>
+                                        <Text style={{ color: colors.text }}>S/ {item.amount}</Text>
                                     </View>
                                 </Pressable>
                             </ContextMenu.Trigger>
@@ -155,7 +157,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         borderBottomWidth: 1,
-        borderColor: 'lightgray',
+        borderColor: 'gray',
         paddingVertical: 15,
     },
     label: {

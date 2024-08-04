@@ -14,9 +14,11 @@ import {calculateTotal, formatByThousands, formatTitleOption} from "@/lib/helper
 import {groups} from "@/lib/utils/data/transaction";
 import {selectSelectedAccountGlobal} from "@/lib/store/features/accounts/accountsSlice";
 import {TransactionsGroupedByDate} from "@/lib/types/Transaction";
+import {useTheme} from "@react-navigation/native";
 
 export default function ResumeDropDown() {
     const db = useSQLiteContext();
+    const colors = useTheme().colors;
     const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false)
     const dispatch = useAppDispatch();
     const filterType = useAppSelector(selectHomeViewTypeFilter)
@@ -35,11 +37,11 @@ export default function ResumeDropDown() {
             <DropdownMenu.Root>
                 <DropdownMenu.Trigger>
                     <View style={{ alignItems: 'center' }}>
-                        <Text style={[styles.fs18, isMenuOpen && styles.opacityMedium]}>{ filterType.type === 'Balance' ? 'Current balance' : `${filterType.type} this ${filterType.date}` }</Text>
+                        <Text style={[{color: colors.text}, styles.fs18, isMenuOpen && styles.opacityMedium]}>{ filterType.type === 'Balance' ? 'Current balance' : `${filterType.type} this ${filterType.date}` }</Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <Text style={[styles.fs32, isMenuOpen && styles.opacityMedium]}>S/ </Text>
-                            <Text style={[styles.fw64, styles.fwBold, isMenuOpen && styles.opacityMedium]}>{formatByThousands(calculateTotal(transactionsInView).amount)}</Text>
-                            <Text style={[styles.fs32, styles.fwBold, isMenuOpen && styles.opacityMedium]}>.{calculateTotal(transactionsInView).decimals}</Text>
+                            <Text style={[{color: colors.text}, styles.fs32, isMenuOpen && styles.opacityMedium]}>S/ </Text>
+                            <Text style={[{color: colors.text}, styles.fw64, styles.fwBold, isMenuOpen && styles.opacityMedium]}>{formatByThousands(calculateTotal(transactionsInView).amount)}</Text>
+                            <Text style={[{color: colors.text}, styles.fs32, styles.fwBold, isMenuOpen && styles.opacityMedium]}>.{calculateTotal(transactionsInView).decimals}</Text>
                         </View>
                     </View>
                 </DropdownMenu.Trigger>

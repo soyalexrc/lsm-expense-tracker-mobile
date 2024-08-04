@@ -15,9 +15,11 @@ import {
 } from "@/lib/store/features/transactions/transactionsSlice";
 import {useSQLiteContext} from "expo-sqlite";
 import {getCurrentMonth, getCurrentWeek} from "@/lib/helpers/date";
+import {useTheme} from "@react-navigation/native";
 
 export default function AccountSelectDropdown() {
-    const db = useSQLiteContext()
+    const db = useSQLiteContext();
+    const colors = useTheme().colors;
     const accounts = useAppSelector(selectAccounts);
     const filterType = useAppSelector(selectHomeViewTypeFilter)
     const selectedAccount = useAppSelector(selectSelectedAccountGlobal);
@@ -50,8 +52,8 @@ export default function AccountSelectDropdown() {
         <DropdownMenu.Root>
             <DropdownMenu.Trigger>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-                    <Text style={{ fontSize: 16 }}>{formatAccountTitle(selectedAccount, true)}</Text>
-                    <Entypo name="select-arrows" size={18} color="black" />
+                    <Text style={{ fontSize: 16, color: colors.text }}>{formatAccountTitle(selectedAccount, true)}</Text>
+                    <Entypo name="select-arrows" size={18} color={colors.text} />
                 </View>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content loop={false} side='bottom' sideOffset={0} align='center' alignOffset={0} collisionPadding={0} avoidCollisions={true}>

@@ -47,11 +47,12 @@
         "expo-build-properties",
         {
           "android": {
-            "compileSdkVersion": 33,
+            "compileSdkVersion": 34,
             "targetSdkVersion": 33,
-            "minSdkVersion": 23,
-            "buildToolsVersion": "33.0.0",
-            "kotlinVersion": "1.6.20"
+            "buildToolsVersion": "34.0.0"
+          },
+          "ios": {
+            "deploymentTarget": "13.4"
           }
         }
       ],
@@ -81,7 +82,8 @@
         {
           "photosPermission": "The app accesses your photos to let you share them with your friends."
         }
-      ]
+      ],
+      "expo-build-properties"
     ],
     "experiments": {
       "typedRoutes": true

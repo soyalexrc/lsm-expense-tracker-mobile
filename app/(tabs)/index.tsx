@@ -9,6 +9,8 @@ import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {useRouter} from "expo-router";
 import {resetCurrentTransaction} from "@/lib/store/features/transactions/transactionsSlice";
 import {useAppDispatch} from "@/lib/store/hooks";
+import {ThemedView} from "@/lib/components/ThemedView";
+import {useTheme} from "@react-navigation/native";
 
 
 
@@ -17,6 +19,7 @@ export default function HomeScreen() {
     const schemeColor = useColorScheme()
     const dispatch = useAppDispatch();
     const insets = useSafeAreaInsets()
+    const colors = useTheme().colors;
 
     function onPressNewTransaction() {
         dispatch(resetCurrentTransaction());
@@ -27,8 +30,8 @@ export default function HomeScreen() {
         <View style={styles.container}>
             <BlurView intensity={100} tint='prominent' style={[styles.header, { paddingTop: insets.top }]}>
                 <HeaderDropDownMenu />
-                <TouchableOpacity onPress={onPressNewTransaction} style={[{backgroundColor: schemeColor === 'light' ? 'black' : 'white'}, styles.createButton]}>
-                    <Feather name="plus" size={20} color={schemeColor === 'light' ? 'white' : 'black'} />
+                <TouchableOpacity onPress={onPressNewTransaction} style={[{backgroundColor: colors.text}, styles.createButton]}>
+                    <Feather name="plus" size={20} color={colors.background} />
                 </TouchableOpacity>
             </BlurView>
             <ScrollView showsVerticalScrollIndicator={false} style={[styles.container, { backgroundColor: schemeColor === 'light' ? 'white' : 'black', paddingTop: insets.top + 50  }]}>

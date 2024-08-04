@@ -4,6 +4,7 @@ import {useState} from "react";
 import {MaterialCommunityIcons} from "@expo/vector-icons";
 import {useAppDispatch, useAppSelector} from "@/lib/store/hooks";
 import {onRecurrentSettingChange, selectCurrentTransaction} from "@/lib/store/features/transactions/transactionsSlice";
+import {useTheme} from "@react-navigation/native";
 
 type Props = {
     groups: Item[];
@@ -44,6 +45,7 @@ const items = [
 export default function RecurringSelectorDropdown() {
     const currentTransaction = useAppSelector(selectCurrentTransaction);
     const dispatch = useAppDispatch();
+    const colors = useTheme().colors;
 
 
     function onSelect(value: 'on' | 'mixed' | 'off', keyItem: string) {
@@ -54,7 +56,7 @@ export default function RecurringSelectorDropdown() {
         <DropdownMenu.Root>
             <DropdownMenu.Trigger>
                 <TouchableOpacity>
-                    <MaterialCommunityIcons name="calendar-sync-outline" size={24} color={currentTransaction.recurrentDate === 'none' ? 'gray' : 'black'}/>
+                    <MaterialCommunityIcons name="calendar-sync-outline" size={24} color={currentTransaction.recurrentDate === 'none' ? 'gray' : colors.text}/>
                 </TouchableOpacity>
             </DropdownMenu.Trigger>
             <DropdownMenu.Content loop={false} side='bottom' sideOffset={0} align='center' alignOffset={0} collisionPadding={0} avoidCollisions={true}>
