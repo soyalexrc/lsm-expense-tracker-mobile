@@ -7,9 +7,10 @@ import {
     Transaction,
     TransactionsGroupedByDate
 } from "@/lib/types/Transaction";
-import {endOfWeek, startOfWeek} from "date-fns";
 
 export function getAllAccounts(db: SQLiteDatabase): Account[] {
+    // db.runSync(`UPDATE accounts SET balance = ? WHERE id = ? `, [500, 1]);
+    // db.runSync(`INSERT INTO accounts (title, icon, balance, positive_state) VALUES ($title, $icon, $balance, $positive_status)`, { $title: 'Visa 1234', $icon: '💳', $balance: 43142.23, $positive_status: false })
     return db.getAllSync(`SELECT *
                           FROM accounts`);
 }
@@ -46,7 +47,7 @@ export async function getTransactionsGroupedAndFiltered(db: SQLiteDatabase, star
                 AND transaction_type = ?
             GROUP BY formatted_date
             ORDER BY date DESC;
-        `, [startDate, endDate, type === 'Revenue' ? 'income' : 'expense', accountId]);
+        `, [startDate, endDate, type === 'Revenue' ? 'income' : 'expense']);
         } else {
             groups = await db.getAllAsync(`
             SELECT 
@@ -85,7 +86,7 @@ export async function getTransactionsGroupedAndFiltered(db: SQLiteDatabase, star
                 LEFT JOIN categories c ON t.category_id = c.id 
                 LEFT JOIN accounts a ON t.account_id = a.id
             WHERE t.date BETWEEN ? and ?
-                
+                AND c.type = ?
                 `, [startDate, endDate, type  === 'Revenue' ? 'income' : 'expense', accountId]);
 
         const formattedTransactions = transactions.map(t => ({
@@ -169,6 +170,9 @@ export async function createTransaction(db: SQLiteDatabase, transaction: Transac
     const statement = await db.prepareAsync(`INSERT INTO transactions (amount, recurrentDate, date, notes, account_id, category_id) VALUES ($amount, $recurrentDate, $date, $notes, $account_id, $category_id)`)
     try {
         const t = await statement.executeAsync({ $amount: Number(transaction.amount), $recurrentDate: transaction.recurrentDate, $date: transaction.date, $notes: transaction.notes, $account_id: transaction.account_id, $category_id: transaction.category_id });
+        const categoryType: string | null = await db.getFirstAsync('SELECT type FROM categories WHERE id = ?', [transaction.category_id]);
+        const balanceInAccount: number | null = await db.getFirstAsync('SELECT balance FROM accounts WHERE id = ?', [transaction.account_id]);
+        await db.runAsync('UPDATE accounts SET balance = ? WHERE id = ?', [categoryType === 'expense' ? balanceInAccount! - Number(transaction.amount) : balanceInAccount! + Number(transaction.amount)])
         const retrievedTransaction: any = await db.getFirstAsync(`
             SELECT
                 t.id,
@@ -226,6 +230,9 @@ export async function updateTransaction(db: SQLiteDatabase, transaction: Transac
     `);
     try {
         const t= await statement.executeAsync([Number(transaction.amount), transaction.recurrentDate, transaction.date, transaction.notes, transaction.account_id,  transaction.category_id, transaction.id]);
+        const categoryType: string | null = await db.getFirstAsync('SELECT type FROM categories WHERE id = ?', [transaction.category_id]);
+        const balanceInAccount: number | null = await db.getFirstAsync('SELECT balance FROM accounts WHERE id = ?', [transaction.account_id]);
+        await db.runAsync('UPDATE accounts SET balance = ? WHERE id = ?', [categoryType === 'expense' ? balanceInAccount! - Number(transaction.amount) : balanceInAccount! + Number(transaction.amount)])
         const retrievedTransaction: any = await db.getFirstAsync(`
             SELECT
                 t.id,
@@ -325,5 +332,19 @@ export async function stopRecurringInTransaction(db: SQLiteDatabase, transaction
     } catch (err) {
         console.error(err);
         return {}
+    }
+}
+
+export async function getCurrentBalance(db: SQLiteDatabase): Promise<number> {
+    try {
+        const data: { total: number }[] = await db.getAllAsync(`
+                SELECT 
+                 ROUND(SUM(balance), 2) AS total
+                 FROM accounts
+            `);
+        return data[0].total;
+    } catch (err) {
+        console.error(err);
+        return 0;
     }
 }

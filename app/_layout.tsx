@@ -15,7 +15,10 @@ import {
     updateAccountsList
 } from "@/lib/store/features/accounts/accountsSlice";
 import {updateCategoriesList} from "@/lib/store/features/categories/categoriesSlice";
-import {updateTransactionsGroupedByDate} from "@/lib/store/features/transactions/transactionsSlice";
+import {
+    selectHomeViewTypeFilter,
+    updateTransactionsGroupedByDate
+} from "@/lib/store/features/transactions/transactionsSlice";
 import {getCurrentWeek} from "@/lib/helpers/date";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -24,6 +27,7 @@ SplashScreen.preventAutoHideAsync();
 const InitialLayout = () => {
     const dispatch = useAppDispatch();
     const selectedAccount = useAppSelector(selectSelectedAccountGlobal);
+    const filterType = useAppSelector(selectHomeViewTypeFilter)
     const db = useSQLiteContext();
     const [loaded] = useFonts({
         SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
@@ -50,7 +54,7 @@ const InitialLayout = () => {
             dispatch(updateAccountsList(getAllAccounts(db)))
             dispatch(updateCategoriesList(getAllCategories(db)));
             const {start, end} = getCurrentWeek();
-            const transactions = await getTransactionsGroupedAndFiltered(db, start.toISOString(), end.toISOString(), 'Spent', selectedAccount.id);
+            const transactions = await getTransactionsGroupedAndFiltered(db, start.toISOString(), end.toISOString(), filterType.type, selectedAccount.id);
             dispatch(updateTransactionsGroupedByDate(transactions));
         } catch (err) {
             console.log(err);

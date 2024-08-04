@@ -29,3 +29,12 @@ export function calculateTotal(data: TransactionsGroupedByDate[]): { amount: str
         amount: String(total).split('.')[0],
     }
 }
+
+export function formatWithDecimals(total: number): {amount: string, decimals: string} {
+    const decimalsString = String(total).split('.')[1] ?? '00';
+    const decimals = decimalsString.length > 2 ? decimalsString.substring(0, 2) : decimalsString
+    return {
+        amount: String(total).split('.')[0],
+        decimals: decimals,
+    }
+}

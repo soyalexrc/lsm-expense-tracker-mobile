@@ -1,4 +1,4 @@
-import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {Platform, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {useRouter} from "expo-router";
 import {useSafeAreaInsets} from "react-native-safe-area-context";
 import {Entypo} from "@expo/vector-icons";
@@ -34,6 +34,7 @@ import {useTheme} from "@react-navigation/native";
 export default function Screen() {
     const router = useRouter();
     const db = useSQLiteContext();
+    const isIos = Platform.OS === 'ios';
     const dispatch = useAppDispatch();
     const colors = useTheme().colors;
     const filterType = useAppSelector(selectHomeViewTypeFilter)
@@ -93,7 +94,7 @@ export default function Screen() {
             <BottomSheetModalProvider>
                 <View style={[styles.container, { backgroundColor: colors.background }]}>
                     {isModalOpen && <CustomBackdrop/>}
-                    <View style={[styles.header, {paddingTop: insets.top}]}>
+                    <View style={[styles.header, {paddingTop: isIos ? insets.top : insets.top + 20}]}>
                         <TouchableOpacity onPress={() => router.back()}>
                             <Text style={{fontSize: 18, color: 'gray'}}>Cancel</Text>
                         </TouchableOpacity>

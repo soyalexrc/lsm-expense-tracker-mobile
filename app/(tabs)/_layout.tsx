@@ -3,40 +3,25 @@ import React from 'react';
 
 import Feather from '@expo/vector-icons/Feather';
 
-import {View} from "react-native";
+import {Platform, View} from "react-native";
 import {BlurView} from "expo-blur";
 import {useColorScheme} from "@/lib/hooks/useColorScheme";
 import {Colors} from "@/lib/constants/Colors";
+import CustomBottomBar from "@/lib/components/ui/CustomBottomBar";
 
 export default function TabLayout() {
     const colorScheme = useColorScheme();
-
+    const isIos = Platform.OS === 'ios';
     return (
         <Tabs
             screenOptions={{
                 tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-                tabBarStyle: {
-                    position: 'absolute',
-                },
+                tabBarStyle: isIos ? { position: 'absolute' } : {},
                 tabBarItemStyle: {
                     height: 50,
                     marginTop: 2,
                 },
-                tabBarBackground: () => <View style={{ flex: 1 }}>
-                    <View
-                        style={{
-                            width: '100%',
-                            height: '100%',
-                            overflow: 'hidden',
-                        }}
-                    >
-                        <BlurView
-                            intensity={100}
-                            tint='prominent'
-                            style={{ flex: 1 }}
-                        />
-                    </View>
-                </View>
+                tabBarBackground: () => <CustomBottomBar />
             }}>
             <Tabs.Screen
                 name="index"

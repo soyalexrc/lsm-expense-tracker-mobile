@@ -3,14 +3,14 @@ import {StyleSheet, Text, View} from "react-native";
 import {useState} from "react";
 import {useAppDispatch, useAppSelector} from "@/lib/store/hooks";
 import {
-    selectHomeViewTypeFilter, selectTransactionsGroupedByDate,
+    selectHomeViewTypeFilter, selectCurrentBalance, selectTransactionsGroupedByDate,
     updateHomeViewTypeFilter,
-    updateTransactionsGroupedByDate
+    updateTransactionsGroupedByDate, updateCurrentBalance
 } from "@/lib/store/features/transactions/transactionsSlice";
 import {getCurrentMonth, getCurrentWeek} from "@/lib/helpers/date";
-import { getTransactionsGroupedAndFiltered} from "@/lib/db";
+import {getCurrentBalance, getTransactionsGroupedAndFiltered} from "@/lib/db";
 import {useSQLiteContext} from "expo-sqlite";
-import {calculateTotal, formatByThousands, formatTitleOption} from "@/lib/helpers/string";
+import {calculateTotal, formatByThousands, formatTitleOption, formatWithDecimals} from "@/lib/helpers/string";
 import {groups} from "@/lib/utils/data/transaction";
 import {selectSelectedAccountGlobal} from "@/lib/store/features/accounts/accountsSlice";
 import {TransactionsGroupedByDate} from "@/lib/types/Transaction";
@@ -24,12 +24,18 @@ export default function ResumeDropDown() {
     const filterType = useAppSelector(selectHomeViewTypeFilter)
     const selectedAccount = useAppSelector(selectSelectedAccountGlobal)
     const transactionsInView = useAppSelector(selectTransactionsGroupedByDate);
+    const currentBalance = useAppSelector(selectCurrentBalance);
 
     async function handleSelectOption(type: 'Spent' | 'Revenue' | 'Balance', date: 'week' | 'month' | 'none') {
-        const {start, end} =  date === 'week' ? getCurrentWeek() : getCurrentMonth();
         dispatch(updateHomeViewTypeFilter({ type, date }))
-        const transactions = await getTransactionsGroupedAndFiltered(db, start.toISOString(), end.toISOString(), type, selectedAccount.id);
-        dispatch(updateTransactionsGroupedByDate(transactions));
+        if (type !== 'Balance') {
+            const {start, end} =  date === 'week' ? getCurrentWeek() : getCurrentMonth();
+            const transactions = await getTransactionsGroupedAndFiltered(db, start.toISOString(), end.toISOString(), type, selectedAccount.id);
+            dispatch(updateTransactionsGroupedByDate(transactions));
+        } else {
+            const currentBalance = await getCurrentBalance(db);
+            dispatch(updateCurrentBalance(currentBalance));
+        }
     }
 
     return (
@@ -40,8 +46,20 @@ export default function ResumeDropDown() {
                         <Text style={[{color: colors.text}, styles.fs18, isMenuOpen && styles.opacityMedium]}>{ filterType.type === 'Balance' ? 'Current balance' : `${filterType.type} this ${filterType.date}` }</Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Text style={[{color: colors.text}, styles.fs32, isMenuOpen && styles.opacityMedium]}>S/ </Text>
-                            <Text style={[{color: colors.text}, styles.fw64, styles.fwBold, isMenuOpen && styles.opacityMedium]}>{formatByThousands(calculateTotal(transactionsInView).amount)}</Text>
-                            <Text style={[{color: colors.text}, styles.fs32, styles.fwBold, isMenuOpen && styles.opacityMedium]}>.{calculateTotal(transactionsInView).decimals}</Text>
+                            {
+                                filterType.type === 'Balance' &&
+                                <>
+                                    <Text style={[{color: colors.text}, styles.fw64, styles.fwBold, isMenuOpen && styles.opacityMedium]}>{formatByThousands(formatWithDecimals(currentBalance).amount)}</Text>
+                                    <Text style={[{color: colors.text}, styles.fs32, styles.fwBold, isMenuOpen && styles.opacityMedium]}>.{formatWithDecimals(currentBalance).decimals}</Text>
+                                </>
+                            }
+                            {
+                                filterType.type !== 'Balance' &&
+                                <>
+                                    <Text style={[{color: colors.text}, styles.fw64, styles.fwBold, isMenuOpen && styles.opacityMedium]}>{formatByThousands(calculateTotal(transactionsInView).amount)}</Text>
+                                    <Text style={[{color: colors.text}, styles.fs32, styles.fwBold, isMenuOpen && styles.opacityMedium]}>.{calculateTotal(transactionsInView).decimals}</Text>
+                                </>
+                            }
                         </View>
                     </View>
                 </DropdownMenu.Trigger>

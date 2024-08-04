@@ -25,6 +25,7 @@ import {
 import {useSQLiteContext} from "expo-sqlite";
 import {useState} from "react";
 import {useTheme} from "@react-navigation/native";
+import {formatByThousands} from "@/lib/helpers/string";
 
 export default function HomeResumeItems() {
     const db = useSQLiteContext();
@@ -82,7 +83,7 @@ export default function HomeResumeItems() {
                         <View style={{width: 30}}/>
                         <View style={[styles.imageWithLabel, {marginVertical: 12}]}>
                             <Text style={{color: 'gray', fontSize: 14}}>{formatDateHomeItemGroups(group.date)}</Text>
-                            <Text style={{color: 'gray', fontSize: 14}}>S/ {group.total}</Text>
+                            <Text style={{color: 'gray', fontSize: 14}}>S/ {formatByThousands(String(group.total))}</Text>
                         </View>
                     </View>
                     {group.items?.map((item) => (
@@ -99,7 +100,7 @@ export default function HomeResumeItems() {
                                             }
                                             <Text style={[styles.label, { color: colors.text }]}>{item.category.title}</Text>
                                         </View>
-                                        <Text style={{ color: colors.text }}>S/ {item.amount}</Text>
+                                        <Text style={{ color: colors.text }}>S/ {formatByThousands(item.amount)}</Text>
                                     </View>
                                 </Pressable>
                             </ContextMenu.Trigger>

@@ -6,7 +6,8 @@ import {index} from "@zxing/text-encoding/es2015/encoding/indexes";
 export interface TransactionsState {
     currentTransaction: Transaction;
     transactionsGroupedByDate: TransactionsGroupedByDate[];
-    homeViewTypeFilter: HomeViewTypeFilter
+    homeViewTypeFilter: HomeViewTypeFilter,
+    currentBalance: number;
 }
 
 const initialState: TransactionsState = {
@@ -20,6 +21,7 @@ const initialState: TransactionsState = {
         id: -1
     },
     transactionsGroupedByDate: [],
+    currentBalance: 0,
     homeViewTypeFilter: {
         type: 'Spent',
         date: 'week'
@@ -47,6 +49,9 @@ export const transactionsSlice = createSlice({
         },
         updateCurrentTransaction: (state, action: PayloadAction<Transaction>) => {
             state.currentTransaction = action.payload
+        },
+        updateCurrentBalance: (state, action: PayloadAction<number>) => {
+            state.currentBalance = action.payload;
         },
         resetCurrentTransaction: (state) => {
             state.currentTransaction = {
@@ -98,11 +103,13 @@ export const {
     onChangeDate,
     resetCurrentTransaction,
     removeTransactionFromHomeList,
+    updateCurrentBalance,
     addTransactionInHomeList
 } = transactionsSlice.actions;
 
 export const selectCurrentTransaction = (state: RootState) => state.transactions.currentTransaction
 export const selectTransactionsGroupedByDate = (state: RootState) => state.transactions.transactionsGroupedByDate
 export const selectHomeViewTypeFilter = (state: RootState) => state.transactions.homeViewTypeFilter
+export const selectCurrentBalance = (state: RootState) => state.transactions.currentBalance;
 
 export default transactionsSlice.reducer;

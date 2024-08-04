@@ -1,4 +1,4 @@
-import {StyleSheet, View, Text, TouchableOpacity, ScrollView, useColorScheme} from 'react-native';
+import {StyleSheet, View, Text, TouchableOpacity, ScrollView, useColorScheme, Platform} from 'react-native';
 import {BlurView} from "expo-blur";
 import HeaderDropDownMenu from "@/lib/components/layout/AccountSelectDropdown";
 import React, {useState} from "react";
@@ -7,6 +7,7 @@ import {useSafeAreaInsets} from "react-native-safe-area-context";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import HeaderTransactionTypeDropdown from "@/lib/components/HeaderTransactionTypeDropdown";
 import ReportsResumeItems from "@/lib/components/ReportsResumeItems";
+import CustomHeader from "@/lib/components/ui/CustomHeader";
 
 const data = [
   {
@@ -94,6 +95,7 @@ export default function ReportScreen() {
   const router = useRouter();
   const schemeColor = useColorScheme()
   const insets = useSafeAreaInsets()
+  const isIos = Platform.OS === 'ios';
   const [selectedItem, setSelectedItem] = useState<string>('0')
 
   function handleDropDownTriggerPress(value: 'on' | 'mixed' | 'off', keyItem: string) {
@@ -101,11 +103,11 @@ export default function ReportScreen() {
   }
   return (
       <View style={styles.container}>
-        <BlurView intensity={100} tint='prominent' style={[styles.header, { paddingTop: insets.top }]}>
+        <CustomHeader style={ { paddingTop: insets.top }}>
           <HeaderDropDownMenu />
           <HeaderTransactionTypeDropdown />
-        </BlurView>
-        <ScrollView showsVerticalScrollIndicator={false} style={[styles.container, { backgroundColor: schemeColor === 'light' ? 'white' : 'black', paddingTop: insets.top + 50  }]}>
+        </CustomHeader>
+        <ScrollView showsVerticalScrollIndicator={false} style={{ backgroundColor: schemeColor === 'light' ? 'white' : 'black', paddingTop: isIos ? insets.top + 50 : 0 }}>
 
           {/*Resumen de monto segun filtro (semana, mes, ano)*/}
           <View style={{ paddingHorizontal: 10, marginBottom: 20 }}>
@@ -152,16 +154,4 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    left: 0,
-    zIndex: 100,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 15,
-    paddingBottom: 10,
-  }
 });
