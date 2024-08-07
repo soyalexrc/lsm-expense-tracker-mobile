@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "lsm-expense-tracker-mobile",
-    "slug": "lsm-expense-tracker-mobile",
+    "name": "Finanzas ok",
+    "slug": "finanzas-ok",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.alexrc.lsmexpensetrackermobile",
+      "bundleIdentifier": "com.alexrc.finanzasok",
       "infoPlist": {
         "UIBackgroundModes": [
           "fetch"
@@ -26,7 +26,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.alexrc.lsmexpensetrackermobile",
+      "package": "com.alexrc.finanzasok",
       "permissions": [
         "android.permission.READ_EXTERNAL_STORAGE",
         "android.permission.WRITE_EXTERNAL_STORAGE",
